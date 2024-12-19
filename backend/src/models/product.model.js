@@ -1,30 +1,26 @@
 import mongoose from "mongoose";
 
 const reviewSchema = new mongoose.Schema({
-    rating: {
+  userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+  },
+  rating: {
       type: Number,
       required: true,
       min: 1,
       max: 5,
-    },
-    comment: {
+  },
+  comment: {
       type: String,
       trim: true,
-    },
-    date: {
+  },
+  createdAt: {
       type: Date,
       default: Date.now,
-    },
-    reviewerName: {
-      type: String,
-      required: true,
-    },
-    reviewerEmail: {
-      type: String,
-      required: true,
-      match: [/.+\@.+\..+/, 'Please fill a valid email address'],
-    },
-  });
+  },
+});
 
 const productSchema = new mongoose.Schema({
     title: {

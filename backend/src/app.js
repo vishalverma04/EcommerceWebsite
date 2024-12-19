@@ -20,8 +20,11 @@ app.get('/ok',(req,res)=>{
 })
 
 ///////////////////////
-import userRouter from './routes/product.routes.js'
-app.use('/api/v1/',userRouter)
+import productRoutes from './routes/product.routes.js'
+app.use('/api/v1/products',productRoutes)
+
+import userRouter from './routes/user.routes.js'
+app.use('/api/v1/users',userRouter)
 
 
 export {app}
