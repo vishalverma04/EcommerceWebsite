@@ -2,7 +2,7 @@ import { Apierror } from "../utils/Apierror.js";
 import { asyncHander } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
 import { ApiResponse } from "../utils/Apiresponse.js";
-import { redisClient } from "../db/redis.js";
+import { redisClient } from "../config/redis.js";
 import sendOtpEmail from "./email.controllers.js";
 
 const registerUser= asyncHander(async (req,res)=>{

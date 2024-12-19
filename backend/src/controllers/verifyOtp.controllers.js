@@ -1,5 +1,5 @@
 import { User } from "../models/user.model.js";
-import { redisClient } from "../db/redis.js";
+import { redisClient } from "../config/redis.js";
 import { ApiResponse } from "../utils/Apiresponse.js";
 import { Apierror } from "../utils/Apierror.js";
 import Address from "../models/address.model.js";

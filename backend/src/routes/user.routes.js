@@ -1,6 +1,6 @@
 import express from 'express'
 import {loginUser, logoutUser, registerUser} from '../controllers/user.controllers.js'
-import verifyOtp from '../controllers/verifyOtp.js';
+import verifyOtp from '../controllers/verifyOtp.controllers.js';
 
 const router=express.Router();
 
