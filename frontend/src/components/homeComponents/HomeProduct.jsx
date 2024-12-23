@@ -31,7 +31,7 @@ const ProductCard = () => {
         {/* Playback and Rating */}
         <div className="flex justify-between items-center mb-2">
           <span className="bg-yellow-400 text-black text-xs font-bold py-1 px-2 rounded">
-            60 Hours Playback
+          2Yr  Warranty 
           </span>
           <div className="flex items-center text-sm text-yellow-600 font-semibold">
             <span className="mr-1">⭐</span>4.8
@@ -39,15 +39,15 @@ const ProductCard = () => {
         </div>
 
         {/* Product Title */}
-        <h3 className="text-md font-semibold text-gray-800">boAt Rockerz 255 Pro+</h3>
+        <h3 className="text-md font-semibold text-gray-800">Electric Kettle Aqua Plus 1250 Watts</h3>
 
         {/* Price Details */}
         <div className="mt-2">
           <div className="flex items-center space-x-2">
             <span className="text-lg font-bold text-gray-900">₹1,049</span>
-            <span className="text-sm line-through text-gray-500">₹3,990</span>
+            <span className="text-sm line-through text-gray-500">₹1990</span>
           </div>
-          <span className="text-green-600 text-sm font-semibold">74% off</span>
+          <span className="text-green-600 text-sm font-semibold">47% off</span>
         </div>
 
         {/* Add to Cart */}
