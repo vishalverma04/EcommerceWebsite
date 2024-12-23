@@ -23,11 +23,12 @@ const userSchema=new mongoose.Schema({
         type:String,
         required:true,
     },
-    address:{
+    address:[
+        {
         type:mongoose.Schema.Types.ObjectId,
         ref:"Address",
-        required:true
     }
+]
 },{timestamps:true})
 
 userSchema.pre("save",async function (next) {
