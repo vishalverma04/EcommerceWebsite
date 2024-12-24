@@ -37,7 +37,7 @@ const HeroSection = () => {
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6 text-white">
         <h1 className="text-4xl md:text-6xl font-bold mb-4">
-          Welcome to HG Enterprises
+          Welcome to HG Enterprises India
         </h1>
         <p className="text-lg md:text-xl mb-6">
           Your one-stop destination for high-quality electronic goods and
