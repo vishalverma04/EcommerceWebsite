@@ -133,6 +133,24 @@ const Navbar = () => {
               </Link>
             </li>
             <li>
+            <Link to="/cart" className="relative hover:text-yellow-500">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 3h2l.4 2M7 13h10l3.6-7H6.4M7 13L5.4 7M7 13L6.4 7M7 13l1.6 6M7 13l1.6 6m6.8-6l1.6 6m1.6-6H17.6M7.4 19a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm10.6 0a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"
+                />
+              </svg>
+            </Link>
+          </li>
+            <li>
               {isLoggedIn ? (
                 <Link to="/profile" className="block hover:text-yellow-500 transition duration-200">
                   Profile
