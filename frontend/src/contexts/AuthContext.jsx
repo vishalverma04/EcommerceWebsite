@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const {data} = await axios.post('http://localhost:4000/api/v1/users/login', {
+      const {data} = await axios.post('/api/v1/users/login', {
         email,
         password
       });
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
       if (!token) {
         return false;
       }
-      const { data } = await axios.get('http://localhost:4000/api/v1/users/isLoggedIn', {
+      const { data } = await axios.get('/api/v1/users/isLoggedIn', {
         headers: {
           Authorization: `Bearer ${token}`
         }

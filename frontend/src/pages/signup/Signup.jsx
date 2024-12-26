@@ -23,7 +23,7 @@ function SignupPage() {
     }
     setLoading(true);
     try {
-      const {data}=await axios.post('http://localhost:4000/api/v1/users/signup',{
+      const {data}=await axios.post('/api/v1/users/signup',{
         fullName,
         email,
         mobileNumber,
