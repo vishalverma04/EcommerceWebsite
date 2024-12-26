@@ -8,9 +8,10 @@ import sendOtpEmail from "./email.controllers.js";
 const registerUser= asyncHander(async (req,res)=>{
 try {
     
-         const {fullName,email,password,mobileNumber,street,landmark,city,state,country,postalCode}=req.body
+         const {fullName,email,password,mobileNumber}=req.body
+         
          if(
-            [fullName,email,password,mobileNumber,street,landmark,city,state,country,postalCode].some((field)=>{
+            [fullName,email,password,mobileNumber].some((field)=>{
                  field === "";
             })
          ){
@@ -28,16 +29,16 @@ try {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const otpExpiresAt = 600; 
     
-        await redisClient.setEx(`otp:${email}`, otpExpiresAt, JSON.stringify({ otp, fullName, email, password,mobileNumber,street,landmark,city,state,country,postalCode }));
+        await redisClient.setEx(`otp:${email}`, otpExpiresAt, JSON.stringify({ otp, fullName, email, password,mobileNumber }));
     
-        await sendOtpEmail(email, otp);
+        await sendOtpEmail(fullName,email, otp);
         
          return res.status(201).json(
             new ApiResponse(200, `OTP sent to your email ${email}`)
          )
 } catch (error) {
-    console.error('Error during signup:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('Error during signup:', error.message);
+    res.status(error.statusCode).json({ message: error.message });
 }
 
 });
@@ -45,7 +46,6 @@ try {
 const loginUser=asyncHander(async (req,res)=>{
   
    const {email,password}=req.body
-   console.log(email,password)
   
    if(!email){
     throw new Apierror(400,"username or email required")
@@ -82,6 +82,16 @@ const loginUser=asyncHander(async (req,res)=>{
     )
  
  })
+
+const isLoggedIn=asyncHander(async (req,res)=>{
+  
+  const decodedToken=req?.decodedToken;
+  if(!decodedToken){
+    throw new Apierror(401,"unauthorized request")
+  }
+   res.status(200).json(new ApiResponse(200,{decodedToken},"user is logged in"))
+
+});
  
  const logoutUser=asyncHander(async (req,res)=>{
   
@@ -96,4 +106,4 @@ const loginUser=asyncHander(async (req,res)=>{
  
  })
 
-export {registerUser,loginUser,logoutUser}
+export {registerUser,loginUser,logoutUser,isLoggedIn}

@@ -2,11 +2,10 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 
-const Navbar = () => {
+const Navbar = ({fullName,isLoggedIn}) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const isLoggedIn = false; // Replace with actual login status logic
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -153,7 +152,7 @@ const Navbar = () => {
             <li>
               {isLoggedIn ? (
                 <Link to="/profile" className="block hover:text-yellow-500 transition duration-200">
-                  Profile
+                  {fullName}
                 </Link>
               ) : (
                 <Link to="/login" className="block hover:text-yellow-500 transition duration-200">

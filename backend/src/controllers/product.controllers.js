@@ -23,7 +23,7 @@ const addNewProduct=asyncHander(async(req,res)=>{
           reviews,
           returnPolicy,
         } = req.body;
-    
+    console.log(title)
         
         if (!title || !category || price === undefined || stock === undefined || !weight) {
           return res.status(400).json({

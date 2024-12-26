@@ -1,4 +1,6 @@
 import { useState } from "react";
+import axios from 'axios'
+import toast from 'react-hot-toast'
 const AddNewProduct = () => {
   const [step, setStep] = useState(1); // Track current step
   const [product, setProduct] = useState({
@@ -66,14 +68,30 @@ const AddNewProduct = () => {
   const nextStep = () => setStep((prev) => prev + 1);
   const prevStep = () => setStep((prev) => prev - 1);
 
-  const handleSubmit = (e) => {
+  const [loading,setLoading]=useState(false)
+
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    console.log("Submitted Product Data:", product);
-    // Add API call or logic to save product data here
+    setLoading(true);
+    console.log(product)
+    try {
+      const {data}=await axios.post('/api/v1/products/addNewProduct',{
+        product
+      })
+      console.log(data)
+      if(data.status>=500){
+        toast.error(data.message)
+        return;
+      }
+    } catch (error) {
+      toast.error('something went wrong while sending data...')
+    }finally{
+      setLoading(false)
+    }
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded shadow m-16">
+    <div className="max-w-6xl mx-auto p-6 bg-white rounded shadow m-16">
       <h1 className="text-2xl font-bold mb-6 w-full">Add New Product</h1>
       <form onSubmit={handleSubmit}>
         {step === 1 && (

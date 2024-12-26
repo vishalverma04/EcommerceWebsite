@@ -8,6 +8,7 @@ import ProductsPage from "./pages/products";
 import UpdateProduct from "./pages/updateProduct";
 import OrdersPage from "./pages/orders";
 import CustomerPage from "./pages/customer";
+import SettingsPage from "./pages/setting";
 
 const App = () => {
   const [login, setLogin] = useState(true);
@@ -23,6 +24,7 @@ const App = () => {
           <Route path="/updateproduct/:id" Component={UpdateProduct}></Route>
           <Route path="/orders" Component={OrdersPage}></Route>
           <Route path="/customers" Component={CustomerPage}></Route>
+          <Route path="/settings" Component={SettingsPage}></Route>
 
 
           <Route path="/*" element={<h1>Not Found</h1>}></Route>
