@@ -73,12 +73,30 @@ const AddNewProduct = () => {
   const handleSubmit = async(e) => {
     e.preventDefault();
     setLoading(true);
-    console.log(product)
+    // console.log(product)
     try {
       const {data}=await axios.post('/api/v1/products/addNewProduct',{
-        product
+        title:product.title,
+        description: product.description,
+        category: product.category,
+        price: product.price,
+        discountPercentage: product.discountPercentage,
+        rating: product.rating,
+        stock: product.stock,
+        brand: product.brand,
+        dimensions: product.dimensions,
+        bulletPoints: product.bulletPoints,
+        weight: product.weight,
+        warrantyInformation: product.warrantyInformation,
+        shippingInformation: product.shippingInformation,
+        availabilityStatus: "In Stock",
+        returnPolicy: product.returnPolicy,
+        images: product.images,
       })
       console.log(data)
+      if(data.statusCode===200){
+        toast.success("Product Added Successfully...")
+      }
       if(data.status>=500){
         toast.error(data.message)
         return;
@@ -98,11 +116,21 @@ const AddNewProduct = () => {
           <>
             <h2 className="text-lg font-semibold mb-4">Basic Details</h2>
             <div className="mb-4">
-              <label className="block font-medium">Title</label>
+              <label className="block font-medium">Name</label>
               <input
                 type="text"
                 value={product.title}
                 onChange={(e) => handleChange("title", e.target.value)}
+                className="w-full p-2 border rounded"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block font-medium">Brand</label>
+              <input
+                type="text"
+                value={product.brand}
+                onChange={(e) => handleChange("brand", e.target.value)}
                 className="w-full p-2 border rounded"
                 required
               />

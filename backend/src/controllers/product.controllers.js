@@ -13,6 +13,8 @@ const addNewProduct=asyncHander(async(req,res)=>{
           category,
           price,
           discountPercentage,
+          dimensions,
+          bulletPoints,
           rating,
           stock,
           brand,
@@ -22,8 +24,10 @@ const addNewProduct=asyncHander(async(req,res)=>{
           availabilityStatus,
           reviews,
           returnPolicy,
+          product
         } = req.body;
-    console.log(title)
+    // console.log(title)
+    
         
         if (!title || !category || price === undefined || stock === undefined || !weight) {
           return res.status(400).json({
@@ -50,6 +54,8 @@ const addNewProduct=asyncHander(async(req,res)=>{
           price,
           discountPercentage,
           rating,
+          dimensions,
+          bulletPoints,
           stock,
           brand,
           weight,
@@ -67,7 +73,8 @@ const addNewProduct=asyncHander(async(req,res)=>{
           throw new Apierror(500,"something went wrong while adding product")
         }
         
-        res.status(201).json({
+        res.status(200).json({
+          statusCode:200,
           message: 'Product added successfully!',
           product: savedProduct,
         });

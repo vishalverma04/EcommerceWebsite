@@ -66,6 +66,14 @@ const productSchema = new mongoose.Schema({
       type: Number,
       required: true,
     },
+    bulletPoints:[{
+      type:String,
+      trim:true
+    }],
+    dimensions:{
+     type:String,
+     trim:true
+    },
     warrantyInformation: {
       type: String,
       trim: true,
