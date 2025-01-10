@@ -10,6 +10,9 @@ import {
   Legend,
 } from 'chart.js';
 
+import { getProductCount,getTotalUserCount } from '../utils/dashboardData';
+import { useEffect,useState } from 'react';
+
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
 
 const Dashboard = () => {
@@ -39,6 +42,21 @@ const Dashboard = () => {
     ],
   };
 
+  const [productCount, setProductCount] = useState(0);
+  const [userCount, setUserCount] = useState(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const totalProducts = await getProductCount();
+      const totalUsers = await getTotalUserCount();
+
+      setProductCount(totalProducts);
+      setUserCount(totalUsers);
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Header */}
@@ -66,7 +84,7 @@ const Dashboard = () => {
           </div>
           <div>
             <p className="text-sm text-gray-500">Total Products</p>
-            <p className="text-xl font-semibold text-gray-800">120</p>
+            <p className="text-xl font-semibold text-gray-800">{productCount}</p>
           </div>
         </div>
 
@@ -138,7 +156,7 @@ const Dashboard = () => {
           </div>
           <div>
             <p className="text-sm text-gray-500">Total Customers</p>
-            <p className="text-xl font-semibold text-gray-800">500</p>
+            <p className="text-xl font-semibold text-gray-800">{userCount}</p>
           </div>
         </div>
       </div>

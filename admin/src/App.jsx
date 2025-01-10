@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import BaseLayout from "./layout/baselayout";
-import AddNewProduct from "./pages/addNewProduct";
-import dashboard from "./pages/dashboard";
-import AdminLogin from "./pages/login";
-import ProductsPage from "./pages/products";
-import UpdateProduct from "./pages/updateProduct";
-import OrdersPage from "./pages/orders";
-import CustomerPage from "./pages/customer";
-import SettingsPage from "./pages/setting";
+
+const BaseLayout = React.lazy(() => import('./layout/baselayout'));
+const AddNewProduct = React.lazy(() => import('./pages/products/addNewProduct'));
+const dashboard = React.lazy(() => import('./pages/dashboard'));
+const AdminLogin = React.lazy(() => import('./pages/login'));
+const UpdateProduct = React.lazy(() => import('./pages/products/updateProduct'));
+const OrdersPage = React.lazy(() => import('./pages/orders'));
+const CustomerPage = React.lazy(() => import('./pages/customer'));
+const SettingsPage = React.lazy(() => import('./pages/settingsPage/setting'));
+const ProductManagement = React.lazy(() => import('./pages/products/ProductManagment'));
 
 const App = () => {
   const [login, setLogin] = useState(true);
@@ -20,7 +21,7 @@ const App = () => {
         <Route  element={<BaseLayout />}>
           <Route path="/" Component={dashboard}></Route>
           <Route path="/addNewProduct" Component={AddNewProduct}></Route>
-          <Route path="/products" Component={ProductsPage}></Route>
+          <Route path="/products" Component={ProductManagement}></Route>
           <Route path="/updateproduct/:id" Component={UpdateProduct}></Route>
           <Route path="/orders" Component={OrdersPage}></Route>
           <Route path="/customers" Component={CustomerPage}></Route>
