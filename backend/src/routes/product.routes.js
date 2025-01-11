@@ -5,29 +5,25 @@ import {
     filterProducts,
     searchProducts,
     getSingleProduct,
-    updateProductById,
-    deleteProductById,
-    reviewProduct
+    reviewProduct,
+    getProducts
 } from "../controllers/product.controllers.js";
+
+import { cacheProducts } from "../middlewares/redisCache.middleware.js";
 
 const router=Router()
 
 router.route('/addNewProduct').post(
-    upload.fields([{name:'productImage' ,maxCount:8}]),
+    upload.array("productImage"),
     addNewProduct
     )
 
 router.get('/filter', filterProducts);
 router.get('/search', searchProducts);
 // router.get('/sort', sortProducts);
-router.get('/:id', getSingleProduct);
-router.route('/updateProduct/:id').post(
-    upload.fields([{name:'productImage' ,maxCount:8}]),
-    updateProductById
-);
-
-router.delete('/:id',deleteProductById)
+router.get('/getOneProduct/:id', getSingleProduct);
 router.post('/:id/review', reviewProduct);
+router.get('/getallproducts',getProducts);
 
 
 

@@ -4,6 +4,7 @@ import { User } from "../models/user.model.js";
 import { ApiResponse } from "../utils/Apiresponse.js";
 import { redisClient } from "../config/redis.js";
 import sendOtpEmail from "./email.controllers.js";
+import  Address  from "../models/address.model.js";
 
 const registerUser= asyncHander(async (req,res)=>{
 try {
@@ -67,7 +68,10 @@ const loginUser=asyncHander(async (req,res)=>{
 
    const loggedInUser={
       fullName:user.fullName,
-      email:user.email
+      email:user.email,
+      userId:user._id,
+      mobileNumber:user.mobileNumber,
+      joinDate:user.createdAt.toISOString().split('T')[0]
    }
  
     const options={
@@ -106,4 +110,91 @@ const isLoggedIn=asyncHander(async (req,res)=>{
  
  })
 
-export {registerUser,loginUser,logoutUser,isLoggedIn}
+const addNewAddress=asyncHander(async (req,res)=>{
+   const { userId } = req.params;
+   const {type, street, city, state, pincode } = req.body;
+   try {
+       const user = await User.findById(userId);
+       if (!user) {
+           return res.status(404).json({ error: "User not found" });
+       }
+       const newAddress = new Address({
+           type,
+           street,
+           city,
+           state,
+           pincode,
+       });
+
+       const savedAddress = await newAddress.save();
+       user.address.push(savedAddress._id);
+       await user.save();
+
+       res.status(201).json({
+           message: "Address added successfully",
+           address: savedAddress,
+       });
+   } catch (error) {
+       console.error(error);
+       res.status(500).json({ error: "Failed to add address" });
+   }
+})
+
+const deleteAddress=asyncHander(async (req,res)=>{
+   const { userId, addressId } = req.params;
+
+    try {
+        // Validate user existence
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        // Check if the address is associated with the user
+        const addressIndex = user.address.indexOf(addressId);
+        if (addressIndex === -1) {
+            return res.status(404).json({ error: "Address not found for this user" });
+        }
+
+        // Remove the address from the user's address array
+        user.address.splice(addressIndex, 1);
+        await user.save();
+
+        // Delete the address from the Address collection
+        await Address.findByIdAndDelete(addressId);
+
+        res.status(200).json({ message: "Address deleted successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to delete address" });
+    }
+});
+
+const getAllAddress=asyncHander(async (req,res)=>{
+    const { userId } = req.params;
+    try {
+        // Validate user existence
+        const user = await User.findById(userId).populate('address');
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        res.status(200).json({
+            message: "Addresses retrieved successfully",
+            addresses: user.address,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to retrieve addresses" });
+    }
+})
+
+export {
+   registerUser,
+   loginUser,
+   logoutUser,
+   isLoggedIn,
+   addNewAddress,
+   deleteAddress,
+   getAllAddress
+}

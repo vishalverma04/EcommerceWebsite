@@ -2,6 +2,8 @@ import Product from '../models/product.model.js';
 import { asyncHander } from '../utils/asyncHandler.js';
 import { Apierror } from '../utils/Apierror.js';
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
+import { redisClient } from '../config/redis.js';
+
 
 
 // add New Product
@@ -24,19 +26,19 @@ const addNewProduct=asyncHander(async(req,res)=>{
           availabilityStatus,
           reviews,
           returnPolicy,
-          product
         } = req.body;
-    // console.log(title)
-    
+
+        
         
         if (!title || !category || price === undefined || stock === undefined || !weight) {
           return res.status(400).json({
             error: 'Please provide all required fields: title, category, price, stock, and weight.',
           });
         }
+
         let productImageLocalPaths=[]
-        const productImages=req.files?.productImage
-      
+
+        const productImages=req.files
         let images=[]
         if(productImages!=undefined){
           productImages.forEach(element => {
@@ -45,7 +47,7 @@ const addNewProduct=asyncHander(async(req,res)=>{
           images=await uploadOnCloudinary(productImageLocalPaths)
         }
         
-       
+        const bulletPointsArray=bulletPoints.split(',')
         
         const newProduct = new Product({
           title,
@@ -55,7 +57,7 @@ const addNewProduct=asyncHander(async(req,res)=>{
           discountPercentage,
           rating,
           dimensions,
-          bulletPoints,
+          bulletPoints:bulletPointsArray,
           stock,
           brand,
           weight,
@@ -86,74 +88,8 @@ const addNewProduct=asyncHander(async(req,res)=>{
         });
       }
     
-})
+});
 
-//update product
-const updateProductById=asyncHander(async(req,res)=>{
-  try {
-    const { id } = req.params; // Get product ID from URL
-    let updates = req.body; // Fields to update from request body
-  
-    
-    // Update product with given fields
-    let productImageLocalPaths=[]
-        const productImages=req.files?.productImage
-      
-        let images=[]
-        if(productImages!=undefined){
-          productImages.forEach(element => {
-            productImageLocalPaths.push(element.path)
-          });
-          images=await uploadOnCloudinary(productImageLocalPaths)
-        }
-        if(images.length>0){
-          updates.images=images
-        }
-   console.log(updates)
-    const updatedProduct = await Product.findByIdAndUpdate(
-        id,
-        { $set: updates },
-        { new: true, runValidators: true } // Return updated document and validate fields
-    );
-
-    if (!updatedProduct) {
-        return res.status(404).json({ message: "Product not found" });
-    }
-
-    res.status(200).json({
-        message: "Product updated successfully",
-        product: updatedProduct
-    });
-} catch (error) {
-    res.status(500).json({
-        message: "Error updating product",
-        error: error.message
-    });
-}
-})
-
-// delete product
-const deleteProductById=asyncHander(async(req,res)=>{
-  try {
-    const { id } = req.params; // Get product ID from URL
-
-    const deletedProduct = await Product.findByIdAndDelete(id);
-
-    if (!deletedProduct) {
-        return res.status(404).json({ message: "Product not found" });
-    }
-
-    res.status(200).json({
-        message: "Product deleted successfully",
-        product: deletedProduct
-    });
-} catch (error) {
-    res.status(500).json({
-        message: "Error deleting product",
-        error: error.message
-    });
-}
-})
 
 // filter the product
 const filterProducts = asyncHander(async (req, res) => {
@@ -183,7 +119,7 @@ const filterProducts = asyncHander(async (req, res) => {
 const searchProducts = asyncHander(async (req, res) => {
   try {
     const query = req.query.q; // Get search term from query string
-
+    // console.log(query)
     if (!query) {
       return res.status(400).send({ message: "Search query is required" });
     }
@@ -199,7 +135,7 @@ const searchProducts = asyncHander(async (req, res) => {
     
   res.status(200).json({
     message: 'Product searched successfully!',
-    product: result,
+    products: result,
   });
   } catch (error) {
     res.status(500).send({ error: error.message });
@@ -259,6 +195,21 @@ const reviewProduct=asyncHander(async(req,res)=>{
 }
 })
 
+const getProducts = asyncHander(async (req, res) => {
+  try {
+    const products = await Product.find({}).limit(50);
+
+    // await redisClient.set("products_cache", JSON.stringify(products), {
+    //   EX: 3600,
+    // });
+
+    res.status(200).json({"statusCode":200,"message":"Products fetched successfully",products});
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ error: "Failed to fetch products" });
+  }
+});
+
 
 
 
@@ -267,7 +218,6 @@ export {
   filterProducts, 
   searchProducts,
   getSingleProduct,
-  updateProductById,
-  deleteProductById,
-  reviewProduct
+  reviewProduct,
+  getProducts
 };

@@ -1,6 +1,12 @@
 import mongoose from 'mongoose';
 
 const addressSchema = new mongoose.Schema({
+    type:{
+        type: String,
+        required: true,
+        enum: ['home', 'office', 'other'],
+        default: 'home',
+    },
     street: {
         type: String,
         required: true,
@@ -8,7 +14,6 @@ const addressSchema = new mongoose.Schema({
     },
     landmark:{
       type: String,
-      required: true,
       trim: true,
     },
     city: {
@@ -26,7 +31,7 @@ const addressSchema = new mongoose.Schema({
         default:"India",
         trim: true,
     },
-    postalCode: {
+    pincode: {
         type: String,
         required: true,
         match: /^[0-9]{5,6}$/, 

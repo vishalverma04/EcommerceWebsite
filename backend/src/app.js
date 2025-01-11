@@ -26,5 +26,20 @@ app.use('/api/v1/products',productRoutes)
 import userRouter from './routes/user.routes.js'
 app.use('/api/v1/users',userRouter)
 
+import adminRouter from './routes/admin.routes.js'
+app.use('/api/v1/admin',adminRouter)
+
+//////////////////////
+
+import paymentRoutes from './routes/payment.routes.js'
+
+app.use('/api',paymentRoutes)
+
+app.get('/api/getkey',(req,res)=>{
+    res.status(200).json({key:process.env.RAZORPAY_API_KEY})
+})
+
+///////////////////////
+
 
 export {app}
