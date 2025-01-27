@@ -1,14 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Upload, Trash2, Edit, Plus, Save, X } from 'lucide-react';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import { useCategoryContext } from '../../contexts/categoryContext';
 
 const CategorySection = () => {
-    const [categories, setCategories] = useState([
-      { id: 1, name: 'Electronics', imageUrl: '/api/placeholder/400/400' },
-      { id: 2, name: 'Fashion', imageUrl: '/api/placeholder/400/400' }
-    ]);
+
+    const { categories, setCategories,fetchCategories } = useCategoryContext();
+
+  const [loading, setLoading] = useState(false);
+    useEffect(() => {
+      fetchCategories();
+    }, []);
+
     const [newCategory, setNewCategory] = useState({ name: '', imageFile: null, imagePreview: null });
-    const [editingId, setEditingId] = useState(null);
-    const [editName, setEditName] = useState('');
+    
   
     const handleImageSelect = (e) => {
       const file = e.target.files[0];
@@ -21,33 +27,34 @@ const CategorySection = () => {
       }
     };
   
-    const handleAddCategory = () => {
-      if (newCategory.name.trim() && newCategory.imagePreview) {
-        const category = {
-          id: Date.now(),
-          name: newCategory.name,
-          imageUrl: newCategory.imagePreview // In real app, this would be the uploaded image URL
-        };
-        setCategories([...categories, category]);
+    const handleAddCategory = async () => {
+      setLoading(true);
+      try{
+        const formData = new FormData();
+        formData.append('name', newCategory.name);
+        formData.append('image', newCategory.imageFile);
+  
+        const { data } = await axios.post('/api/v1/settings/addnewcategory', formData);
+        setCategories([...categories, data.newCategory]);
         setNewCategory({ name: '', imageFile: null, imagePreview: null });
+        toast.success('Category added successfully');
+      }catch(error){
+        toast.error('Failed to add category');
+      }finally{
+        setLoading(false);
       }
     };
   
-    const handleDeleteCategory = (id) => {
-      setCategories(categories.filter(cat => cat.id !== id));
-    };
-  
-    const handleEdit = (category) => {
-      setEditingId(category.id);
-      setEditName(category.name);
-    };
-  
-    const handleSave = (id) => {
-      setCategories(categories.map(cat => 
-        cat.id === id ? { ...cat, name: editName } : cat
-      ));
-      setEditingId(null);
-      setEditName('');
+    const handleDeleteCategory =async (id) => {
+      if(window.confirm('Are you sure?')){
+         try {
+            const {data} = await axios.delete(`/api/v1/settings/deletecategory/${id}`);
+            setCategories(categories.filter(category=>category._id!==id))
+            toast.success(data.message)
+        } catch (error) {
+            toast.error('Internal Server Error');
+        }        
+      }
     };
   
     return (
@@ -65,25 +72,34 @@ const CategorySection = () => {
           />
           
           <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg cursor-pointer hover:bg-gray-700">
+            <label className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700">
               <Upload size={20} />
               <span>Select Category Image</span>
               <input
                 type="file"
+                name="image"
                 className="hidden"
                 accept="image/*"
                 onChange={handleImageSelect}
               />
             </label>
             
-            <button
+            {loading===false?<button
               onClick={handleAddCategory}
               disabled={!newCategory.name || !newCategory.imagePreview}
               className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               <Plus size={20} />
               <span>Add Category</span>
-            </button>
+            </button>:(
+              <button
+                 disabled
+                 className='flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-400 cursor-not-allowed'
+              >
+              <Plus size={20} />
+              <span>Adding...</span>
+              </button>
+            )}
           </div>
   
           {newCategory.imagePreview && (
@@ -104,61 +120,33 @@ const CategorySection = () => {
         </div>
   
         {/* Categories Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {categories.map(category => (
             <div
-              key={category.id}
+              key={category._id}
               className="border rounded-lg p-4"
             >
               <img
                 src={category.imageUrl}
                 alt={category.name}
-                className="w-full h-48 object-cover rounded-lg mb-3"
+                className="w-20  h-20 object-cover rounded-full mb-3"
               />
               
-              {editingId === category.id ? (
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    className="flex-1 border rounded px-2 py-1"
-                  />
-                  <button
-                    onClick={() => handleSave(category.id)}
-                    className="p-2 text-green-600 hover:bg-green-50 rounded"
-                  >
-                    <Save size={20} />
-                  </button>
-                  <button
-                    onClick={() => setEditingId(null)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
-              ) : (
                 <div className="flex items-center justify-between">
                   <span className="font-medium">{category.name}</span>
-                  <div className="flex gap-2">
+      
                     <button
-                      onClick={() => handleEdit(category)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded"
-                    >
-                      <Edit size={20} />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteCategory(category.id)}
+                      onClick={() => handleDeleteCategory(category._id)}
                       className="p-2 text-red-600 hover:bg-red-50 rounded"
                     >
                       <Trash2 size={20} />
                     </button>
-                  </div>
                 </div>
-              )}
+              
             </div>
           ))}
         </div>
+
       </div>
     );
   };

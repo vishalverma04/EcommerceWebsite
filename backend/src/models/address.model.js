@@ -36,6 +36,15 @@ const addressSchema = new mongoose.Schema({
         required: true,
         match: /^[0-9]{5,6}$/, 
     },
+    fullName: { 
+    type: String, 
+    required: [true, 'Full name is required'] 
+  },
+  mobileNumber: { 
+    type: String, 
+    required: [true, 'Phone number is required'] 
+  },
+
 },{timestamps:true});
 const Address=mongoose.model('Address',addressSchema)
 

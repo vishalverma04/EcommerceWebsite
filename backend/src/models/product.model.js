@@ -2,9 +2,19 @@ import mongoose from "mongoose";
 
 const reviewSchema = new mongoose.Schema({
   userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      type: String,
       required: true,
+      trim: true
+  },
+  username: {
+      type: String,
+      required: true,
+      trim: true
+  },
+  title:{
+      type: String,
+      required: true,
+      trim: true,
   },
   rating: {
       type: Number,
@@ -51,7 +61,6 @@ const productSchema = new mongoose.Schema({
       type: Number,
       min: 0,
       max: 5,
-      default: 0,
     },
     stock: {
       type: Number,
@@ -66,10 +75,26 @@ const productSchema = new mongoose.Schema({
       type: Number,
       required: true,
     },
+    material: {
+      type: String,
+      trim: true,
+    },
     bulletPoints:[{
       type:String,
       trim:true
     }],
+    links:[
+      {
+        linkName:{
+          type:String,
+          trim:true
+        },
+        linkUrl:{
+          type:String,
+          trim:true
+        } 
+      }
+    ],
     dimensions:{
      type:String,
      trim:true

@@ -1,4 +1,6 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import image from "../assets/image.png"
 
 const Footer = () => {
   return (
@@ -18,26 +20,27 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
+            <li>
+                <Link to="/" className="hover:text-yellow-500">
+                  Home
+                </Link>
+              </li>
               <li>
-                <a href="/about" className="hover:text-yellow-500">
+                <Link to="/about" className="hover:text-yellow-500">
                   About Us
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/contact" className="hover:text-yellow-500">
+                <Link to="/contact" className="hover:text-yellow-500">
                   Contact Us
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/services" className="hover:text-yellow-500">
+                <Link to="/services" className="hover:text-yellow-500">
                   Services
-                </a>
+                </Link>
               </li>
-              <li>
-                <a href="/products" className="hover:text-yellow-500">
-                  Products
-                </a>
-              </li>
+              
             </ul>
           </div>
 
@@ -77,6 +80,17 @@ Haryana,123401 ,India
               </button>
             </form>
           </div> */}
+          <div className="shadow-lg rounded-lg p-4 ">
+                      <img
+                        src={image}
+                        width="100%"
+                        allowFullScreen
+                        loading="lazy"
+                        className="rounded-lg border-2 border-gray-300"
+                        title="HG ENTERPRISES Location"
+                        onClick={() => window.open("https://maps.app.goo.gl/iNuZPLxdhxtGvWPo9", "_blank")}
+                      />
+                    </div>
         </div>
 
         {/* Social Media and Copyright */}

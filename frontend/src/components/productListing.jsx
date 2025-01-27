@@ -1,27 +1,8 @@
-// import React, { useEffect, useState } from 'react';
-// import ProductCard from './homeComponents/HomeProduct';
-// const ProductListing = () => {
-
-//   const [products, setProducts] = useState([]);
-//   setProducts(exampleProducts)
-
-//   return (
-//     <div className="container mx-auto py-6">
-//       <h2 className="text-2xl font-bold text-center mb-6">Our Products</h2>
-//       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-//         {/* {products.map((product) => (
-//             <ProductCard/>
-//         ))} */}
-//         <ProductCard/>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ProductListing;/
-
 import React from 'react'
 import ProductCard from './homeComponents/HomeProduct';
+import { useProductContext } from '../contexts/ProductContext';
+import Loader from '../pages/Loader';
+import { useEffect } from 'react';
 
 function productListing() {
     const exampleProducts = [
@@ -32,6 +13,7 @@ function productListing() {
           price: 799,
           stock: 12,
           image: 'https://via.placeholder.com/150?text=Smartphone+X12',
+          discountPercentage:20
         },
         {
           id: 2,
@@ -40,6 +22,7 @@ function productListing() {
           price: 199,
           stock: 25,
           image: 'https://via.placeholder.com/150?text=Wireless+Earbuds+Pro',
+          discountPercentage:20
         },
         {
           id: 3,
@@ -47,6 +30,7 @@ function productListing() {
           brand: 'VisionTech',
           price: 999,
           stock: 5,
+          discountPercentage:20,
           image: 'https://via.placeholder.com/150?text=4K+UHD+TV',
         },
         {
@@ -56,6 +40,7 @@ function productListing() {
           price: 1499,
           stock: 7,
           image: 'https://via.placeholder.com/150?text=Gaming+Laptop+G5',
+          discountPercentage:20
         },
         {
           id: 5,
@@ -64,6 +49,7 @@ function productListing() {
           price: 129,
           stock: 20,
           image: 'https://via.placeholder.com/150?text=Bluetooth+Speaker',
+          discountPercentage:20
         },
         {
           id: 6,
@@ -72,6 +58,7 @@ function productListing() {
           price: 249,
           stock: 15,
           image: 'https://via.placeholder.com/150?text=Smart+Watch+2.0',
+          discountPercentage:20
         },
         {
           id: 7,
@@ -80,6 +67,7 @@ function productListing() {
           price: 49,
           stock: 50,
           image: 'https://via.placeholder.com/150?text=Portable+Charger',
+          discountPercentage:20
         },
         {
           id: 8,
@@ -88,6 +76,7 @@ function productListing() {
           price: 299,
           stock: 10,
           image: 'https://via.placeholder.com/150?text=Action+Camera+Z5',
+          discountPercentage:20
         },
         {
           id: 9,
@@ -96,6 +85,7 @@ function productListing() {
           price: 349,
           stock: 8,
           image: 'https://via.placeholder.com/150?text=Noise+Cancelling+Headphones',
+          discountPercentage:20
         },
         {
           id: 10,
@@ -104,6 +94,7 @@ function productListing() {
           price: 199,
           stock: 30,
           image: 'https://via.placeholder.com/150?text=Smart+Thermostat',
+          discountPercentage:20
         },
         {
           id: 11,
@@ -112,6 +103,7 @@ function productListing() {
           price: 499,
           stock: 3,
           image: 'https://via.placeholder.com/150?text=Robot+Vacuum+Cleaner',
+          discountPercentage:20
         },
         {
           id: 12,
@@ -120,15 +112,22 @@ function productListing() {
           price: 59,
           stock: 40,
           image: 'https://via.placeholder.com/150?text=Gaming+Mouse+RGB',
+          discountPercentage:20
         },
       ];
 
+      const { products, loading, } = useProductContext();
+      
+      if(loading) {
+        return <Loader />;
+      }
+
   return (
 <div className="container mx-auto p-6">
-       <h2 className="text-2xl font-bold text-center mb-6">Our Products</h2>
+       
        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-         {exampleProducts.map((product) => (
-             <ProductCard/>
+         {products.map((product) => (
+             <ProductCard key={product._id} product={product}/>
          ))}
          {/* <ProductCard/> */}
        </div>

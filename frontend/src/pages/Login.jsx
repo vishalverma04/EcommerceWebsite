@@ -1,85 +1,145 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
-import Loader from './Loader';
+import { Mail, Lock, ArrowLeft, Eye, EyeOff, AlertCircle, CheckCircle} from 'lucide-react';
+import {Link} from 'react-router-dom' 
+import {useNavigate} from 'react-router-dom'
+import {toast} from 'react-hot-toast'
+import Loader from './Loader'
 
-function LoginPage() {
+import {useAuth} from '../contexts/AuthContext'
+import axios from 'axios';
+
+const LoginSystem = () => {
+  const [currentView, setCurrentView] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setloading] = useState(false);
-  const { login } = useAuth();
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
+
+  const {login}=useAuth()
   const navigate=useNavigate()
+  
 
-
-  const handleSubmit =async (e) => {
-    e.preventDefault();
-    try{
+  const handleLogin = async (e) => {
+      e.preventDefault();
       setloading(true)
-     const res= await login(email, password);
-     if(res){
-      toast.success('login successfully')
-      navigate('/')
-     }else{
-      toast.error('login failed')
-     }
-    }catch(error){
-      setloading(false)
-      console.log('something went wrong while sending data...')
-    }finally{
-  setloading(false)
+      try{
+       const res= await login(email, password);
+       if(res){
+        toast.success('login successfully')
+        setError('')
+        navigate('/')
+       }else{
+        toast.error('login failed')
+        setError('login failed')
+        setSuccess('')
+       }
+      }catch(error){
+        setloading(false)
+        toast.error('something went wrong while sending data...')
+        setError('something went wrong while sending data...')
+        setSuccess('')
+      }finally{
+    setloading(false)
+      }  
+    };
+  
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    if(!email){
+      toast.error('Please enter email')
+      setError('Please enter email')
+      return
     }
-    
+
+    try {
+      const response = await axios.post("/api/v1/users/forgotpassword", { email });
+      toast.success(response.data.message)
+      setSuccess(response.data.message)
+      setError('')
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Something went wrong.");
+      setError(err.response?.data?.message || "Something went wrong.");
+      setSuccess('')
+    }
   };
 
-  if (loading) {
-    return (
-      <Loader/>
-    );  
-  }
   
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-        
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="emailOrUsername" className="block text-gray-700 text-sm font-bold mb-2">
-              Email
-            </label>
-            <input
-              type="text"
-              id="emailOrUsername"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-            />
-          </div>
+  const renderError = () => {
+    if (!error) return null;
+    return (
+      <div className="flex items-center p-4 mb-4 text-red-800 bg-red-100 rounded">
+        <AlertCircle className="h-5 w-5 mr-2" />
+        <p>{error}</p>
+      </div>
+    );
+  };
 
-          <div className="mb-6">
-            <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-            />
-          </div>
+  const renderSuccess = () => {
+    if (!success) return null;
+    return (
+      <div className="flex items-center p-4 mb-4 text-green-800 bg-green-100 rounded">
+        <CheckCircle className="h-5 w-5 mr-2" />
+        <p>{success}</p>
+      </div>
+    );
+  };
+
+
+
+  const renderLoginView = () => (
+    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+      <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+     {renderError()}
+      {renderSuccess()}
+
+      <form onSubmit={handleLogin} className="space-y-4">
+        <div className="relative">
+          <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="pl-10 w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div className="relative">
+          <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="pl-10 w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
           <button
-            type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition duration-300"
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-3"
           >
-            Login
+            {showPassword ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}
           </button>
-        </form>
-        <div className="text-center mt-4">
+        </div>
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition-colors"
+        >
+          Login
+        </button>
+        <button
+          type="button"
+          onClick={() => setCurrentView('forgotPassword')}
+          className="w-full text-blue-500 text-sm hover:underline"
+        >
+          Forgot Password?
+        </button>
+        
+      </form>
+
+      <div className="text-center mt-4">
           <p>
             Don't have an account?{' '}
             <Link to="/signup" className="text-blue-500 hover:underline">
@@ -87,9 +147,55 @@ function LoginPage() {
             </Link>
           </p>
         </div>
-      </div>
+
     </div>
   );
-}
 
-export default LoginPage;
+  const renderForgotPasswordView = () => (
+    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+      <button
+        onClick={() => setCurrentView('login')}
+        className="flex items-center text-gray-600 mb-4"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Login
+      </button>
+      <h2 className="text-2xl font-bold mb-6 text-center">Forgot Password</h2>
+
+      {renderError()}
+      {renderSuccess()}
+      <form onSubmit={handleForgotPassword} className="space-y-4">
+        <div className="relative">
+          <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="pl-10 w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition-colors"
+        >
+          Verify Email
+        </button>
+      </form>
+    </div>
+  );
+
+
+  if(loading){
+    return <Loader/>
+  }
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      {currentView === 'login' && renderLoginView()}
+      {currentView === 'forgotPassword' && renderForgotPasswordView()}
+    </div>
+  );
+};
+
+export default LoginSystem;

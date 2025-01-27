@@ -4,24 +4,18 @@ const getProductCount= async () => {
   return data.totalProducts;
 };
 
-const getOrdersCount = async () => {
-    const response = await axios.get('/api/v1/orders/count');
-    return response.data;
-    }
-
 const getCategoriesCount = async () => {
-    const response = await axios.get('/api/v1/categories/count');
-    return response.data;
-    }
+    const {data} = await axios.get('/api/v1/settings/getcategorycount');
+    return data.totalCategory;
+}
 
-    const getTotalUserCount = async () => {
+const getTotalUserCount = async () => {
         const {data} = await axios.get('/api/v1/admin/usercount');
         return data.totalUsers;
-      }
+}
 
     export { 
       getProductCount, 
-      getOrdersCount, 
       getCategoriesCount,
       getTotalUserCount,
     

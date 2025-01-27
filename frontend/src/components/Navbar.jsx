@@ -1,22 +1,33 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../assets/logo.png";
+import logo from "/logo.png";
+import { useProductContext } from '../contexts/ProductContext'
+import {User} from 'lucide-react'
+
+import { Menu, Search, ShoppingCart, } from 'lucide-react';
 
 const Navbar = ({fullName,isLoggedIn}) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const navigate = useNavigate();
-
+  const {searchProducts}=useProductContext()
   const handleSearch = (e) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/searched-items?query=${searchQuery}`);
-    }
+    if (searchQuery.trim() === '') return;
+    searchProducts(searchQuery);
+    setSearchQuery('');
   };
 
+  const NavLinks = [
+    { name: 'About', href: '/about' },
+    { name: 'Contact', href: '/contact' },
+    { name: 'Services', href: '/services' }
+  ];
+
   return (
-    <nav className="bg-gray-800 text-white shadow-md w-full flex justify-between ">
-      <div className="container mx-auto px-6 py-4 flex justify-between items-center ">
+    <nav className="relative bg-gray-800 text-white shadow-md">
+      <div className="container mx-auto px-4 py-3">
+        {/* Top Line: Logo, Search, Mobile Menu */}
+        <div className="flex items-center space-x-4 justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-2">
           <img src={logo} alt="Logo" className="h-10 w-10" />
@@ -34,11 +45,8 @@ const Navbar = ({fullName,isLoggedIn}) => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <button
-            type="submit"
-            className="bg-yellow-500 text-white px-2 py-1 rounded-full md:px-4"
-          >
-            Search
+          <button type="submit" className="text-yellow-400 hover:text-yellow-500">
+            <Search size={24} />
           </button>
         </form>
 
@@ -79,8 +87,8 @@ const Navbar = ({fullName,isLoggedIn}) => {
           </li>
           <li>
             {isLoggedIn ? (
-              <Link to="/profile" className="hover:text-yellow-500 transition duration-200">
-                Profile
+              <Link to="/profile" className="hover:text-yellow-500 transition duration-200 ">
+                <User className="h-8 w-8 text-blue-600 bg-blue-100 p-1 rounded-full" />
               </Link>
             ) : (
               <Link to="/login" className="hover:text-yellow-500 transition duration-200">
@@ -91,48 +99,44 @@ const Navbar = ({fullName,isLoggedIn}) => {
         </ul>
 
         {/* Mobile Menu Button */}
-        <button
-          className="md:hidden text-white focus:outline-none"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            className="w-6 h-6 "
+        <button 
+            className="md:hidden"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d={isMobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
-            />
-          </svg>
-        </button>
+            <Menu size={24} />
+          </button>
       </div>
 
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden bg-gray-800 text-white px-6 py-4 space-y-4">
-          <ul className="space-y-4">
-            <li>
-              <Link to="/about" className="block hover:text-yellow-500 transition duration-200">
-                About
-              </Link>
-            </li>
-            <li>
-              <Link to="/contact" className="block hover:text-yellow-500 transition duration-200">
-                Contact
-              </Link>
-            </li>
-            <li>
-              <Link to="/services" className="block hover:text-yellow-500 transition duration-200">
-                Services
-              </Link>
-            </li>
-            <li>
-            <Link to="/cart" className="relative hover:text-yellow-500">
+      <div 
+          className={`
+            fixed top-0 right-0 w-64 h-full bg-gray-600 shadow-lg transform 
+            transition-transform duration-300 ease-in-out
+            ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}
+            md:hidden z-50
+          `}
+        >
+          <div className="p-5">
+            <button 
+              className="absolute top-4 right-4"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              ✕
+            </button>
+
+            <div className="space-y-3">
+              {NavLinks.map((link) => (
+                <Link 
+                  key={link.name} 
+                  to={link.href} 
+                  className="block hover:text-blue-600 transition"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.name}
+                </Link>
+              ))}
+              
+              <div className="space-y-3">
+              <Link to="/cart" className="relative hover:text-yellow-500">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -140,6 +144,7 @@ const Navbar = ({fullName,isLoggedIn}) => {
                 strokeWidth="1.5"
                 stroke="currentColor"
                 className="w-6 h-6"
+                onClick={() => setIsMobileMenuOpen(false)}
               >
                 <path
                   strokeLinecap="round"
@@ -148,21 +153,25 @@ const Navbar = ({fullName,isLoggedIn}) => {
                 />
               </svg>
             </Link>
-          </li>
-            <li>
-              {isLoggedIn ? (
-                <Link to="/profile" className="block hover:text-yellow-500 transition duration-200">
-                  {fullName}
+            {isLoggedIn ? (
+                <Link to="/profile" className="block hover:text-yellow-500 transition duration-200"
+                onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <User className="h-6 w-6 text-blue-600" />
                 </Link>
               ) : (
-                <Link to="/login" className="block hover:text-yellow-500 transition duration-200">
+                <Link to="/login" className="block hover:text-yellow-500 transition duration-200"
+                onClick={() => setIsMobileMenuOpen(false)}
+                >
                   Login
                 </Link>
               )}
-            </li>
-          </ul>
+              </div>
+            </div>
+          </div>
+          </div>
+
         </div>
-      )}
     </nav>
   );
 };

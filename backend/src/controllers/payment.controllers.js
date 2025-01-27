@@ -1,28 +1,84 @@
 import { razorpayInstance } from "../config/Razorpay.js";
-import  {Payment}  from "../models/Payment.model.js";
 import crypto from 'crypto';
+import Order from "../models/order.model.js";
+import { asyncHander } from "../utils/asyncHandler.js";
+import {User} from "../models/user.model.js";
 
 
 const checkout=async(req,res)=>{
     // console.log(req.body.amount)
+ try{
+    const {
+      amount,
+      userId,
+      shippingAddress,
+      cart,
 
-    const options={
+    }=req.body;
+    
+
+    const additems=async (cart)=>{
+      let items=[]
+     await cart.forEach(item=>{
+          items.push({
+              productId:item.productId,
+              quantity:item.quantity,
+          })
+      })
+      return items
+  }
+  const items=await additems(cart)
+
+  const options={
     amount:req.body.amount*100,
     currency:"INR"
-    }
 
-const order=await razorpayInstance.orders.create(options);
-if(!order){
+    }
+const razorpayOrder =await razorpayInstance.orders.create(options);
+if(!razorpayOrder){
     res.status(500).json({
-        message:"something went wrong create order"
+        message:"something went wrong create Razorpay order"
     })
     return;
 }
 
-res.status(200).json({
-    success:true,
-    order
-})
+const order = new Order({
+  userId, 
+  items,
+  shippingAddress,
+  subtotal:amount,
+  shipping:0,
+  total:amount,
+  estimatedDeliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+  payment: {
+    razorpay_order_id: razorpayOrder.id,
+    razorpay_payment_id: '...',
+    razorpay_signature: '...',
+    paymentStatus: 'pending'
+},
+  status: 'processing'
+});
+    await order.save();
+
+    const user=await User.findById(userId)
+    user.orders.push(order._id)
+    await user.save()
+
+        res.status(201).json({
+            success: true,
+            order: order,
+            razorpayOrderId: razorpayOrder.id,
+            amount: razorpayOrder.amount
+        });
+
+  } catch (error) {
+        console.error('Order creation error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error creating order',
+            error: error.message
+        });
+    }
 
 }
 
@@ -46,19 +102,34 @@ const paymentVerification=async(req,res)=>{
   if (isAuthentic) {
     // Database comes here
 
-    await Payment.create({
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
-    });
+    const order = await Order.findOne({
+      'payment.razorpay_order_id': razorpay_order_id
+  });
 
-    res.redirect(
-      `http://localhost:5173/paymentsuccess?reference=${razorpay_payment_id}`
-    );
+  if (!order) {
+      return res.status(404).json({
+          success: false,
+          message: 'Order not found'
+      });
+  }
+
+  // Update payment details
+  order.payment.razorpay_payment_id = razorpay_payment_id;
+  order.payment.razorpay_signature = razorpay_signature;
+  order.payment.paymentStatus = 'completed';
+  order.status = 'confirmed';
+  order.payment.paymentDate = new Date();
+
+  await order.save();
+  res.redirect(
+    `${process.env.CLIENT_URL}/payment/success?reference=${razorpay_payment_id}`
+  );
   } else {
-    res.status(400).json({
+    res.status(500).json({
       success: false,
-    });
+      message: 'Error verifying payment',
+      error: error.message
+  });
   }
 }
 

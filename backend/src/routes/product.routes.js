@@ -6,7 +6,8 @@ import {
     searchProducts,
     getSingleProduct,
     reviewProduct,
-    getProducts
+    getProducts,
+    searchCategoryProduct
 } from "../controllers/product.controllers.js";
 
 import { cacheProducts } from "../middlewares/redisCache.middleware.js";
@@ -21,11 +22,9 @@ router.route('/addNewProduct').post(
 router.get('/filter', filterProducts);
 router.get('/search', searchProducts);
 // router.get('/sort', sortProducts);
-router.get('/getOneProduct/:id', getSingleProduct);
-router.post('/:id/review', reviewProduct);
-router.get('/getallproducts',getProducts);
-
-
-
+router.get('/getsingle/:id', getSingleProduct);
+router.post('/:id/review',upload.array('images'), reviewProduct);
+router.get('/getallproducts',cacheProducts,getProducts);
+router.get('/category/:category',searchCategoryProduct);
 
 export default router

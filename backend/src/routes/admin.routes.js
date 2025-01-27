@@ -5,7 +5,16 @@ import {
     getAllProductsForAdmin,
     deleteProductById,
     updateProductById,
-    addNewHeroSection
+    addNewHeroSection,
+    getAllOrdersForAdmin,
+    updateOrderStatus,
+    getOrderById,
+    updateOrderEstDeliveryDate,
+    getallusers,
+    getAllServiceRequests,
+    updateServiceStatus,
+    updateRefundStatus,
+    getSalesOverview
 } from "../controllers/admin.controllers.js"
 const router=express.Router()
 import {upload} from "../middlewares/multer.middleware.js"
@@ -18,8 +27,25 @@ router.put('/product/:id',updateProductById)
 
 ////////////// users
 router.get('/usercount',getTotalUserCount)
+router.get('/getallusers',getallusers)  // get all users
 
+////////////// orders
+router.get('/orders',getAllOrdersForAdmin)
+router.put('/orders/:id/status',updateOrderStatus)
+router.put('/orders/:id/estDeliveryDate',updateOrderEstDeliveryDate)
+router.get('/orders/:id',getOrderById)
+router.put('/orders/:id/refundStatus',updateRefundStatus)
 
 ////////////// others
 router.post('/hero',upload.single("heroImage"),addNewHeroSection)
+
+////////// service
+
+router.get('/services',getAllServiceRequests)
+router.put('/services/:id/status',updateServiceStatus)
+
+/////////  sales data
+router.get('/salesoverview',getSalesOverview)
+
+
 export default router

@@ -48,6 +48,42 @@ const uploadOnCloudinary = async (productImageLocalPaths) => {
     }
   
     return uploadedImages;
-  };
+}
 
-export {uploadOnCloudinary}
+const uploadPdfOnCloudinary = async (pdfLocalPath) => {
+   
+    try {
+      if (!pdfLocalPath) return;
+
+      // Check if the file exists
+      if (!fs.existsSync(pdfLocalPath)) {
+        console.error(`File does not exist: ${pdfLocalPath}`);
+        return;
+      }
+
+      // Upload the file to Cloudinary
+      const result = await cloudinary.uploader.upload(pdfLocalPath, {
+        resource_type: "raw", // You can specify "image" if files are always images
+      });
+
+      // Remove the temporary file
+
+      fs.unlinkSync(pdfLocalPath);
+      const downloadUrl = `https://res-console.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/media_explorer_thumbnails/${result.asset_id}/download`;
+      return downloadUrl;
+    }
+    catch (error) {
+      console.error(`Error uploading file: ${pdfLocalPath}`);
+      console.error(error);
+
+      // Remove the temporary file even if the upload fails
+      if (fs.existsSync(pdfLocalPath)) {
+        fs.unlinkSync(pdfLocalPath);
+      }
+
+      throw new Error(`Error uploading PDF to Cloudinary: ${error.message}`);
+    }
+  }
+
+
+export {uploadOnCloudinary,uploadPdfOnCloudinary}

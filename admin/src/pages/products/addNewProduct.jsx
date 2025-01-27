@@ -1,8 +1,8 @@
-
-
 import React, { useState } from 'react';
 import { Plus, Minus, Upload, AlertCircle, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useCategoryContext } from '../../contexts/categoryContext';
+
 const AddProductPage = () => {
     const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -16,7 +16,12 @@ const AddProductPage = () => {
     brand: '',
     dimensions: '',
     bulletPoints: [''],
+    links: [{
+      linkName: '',
+      linkUrl: ''
+    }],
     weight: '',
+    material: '',
     warrantyInformation: '',
     shippingInformation: '',
     availabilityStatus: 'in-stock',
@@ -27,16 +32,7 @@ const AddProductPage = () => {
 
   const [errors, setErrors] = useState({});
 
-  const categories = [
-    'Electronics',
-    'Clothing',
-    'Home & Kitchen',
-    'Books',
-    'Sports',
-    'Beauty',
-    'Toys',
-    'Automotive',
-  ];
+  const { categories } = useCategoryContext();
 
   const availabilityOptions = [
     { value: 'in-stock', label: 'In Stock' },
@@ -80,6 +76,42 @@ const AddProductPage = () => {
     }));
   };
 
+  const handleLinkNameChange = (index, value) => {
+    const newlink = [...formData.links];
+    newlink[index].linkName = value;
+    setFormData((prev) => ({
+      ...prev,
+      links: newlink,
+    }));
+  };
+
+  const handleLinkUrlChange = (index, value) => {
+    const newlink = [...formData.links];
+    newlink[index].linkUrl = value;
+    setFormData((prev) => ({
+      ...prev,
+      links: newlink,
+    }));
+  };
+
+  const addLink = () => {
+    setFormData((prev) => ({
+      ...prev,
+      links: [...prev.links, {
+        linkName: '',
+        linkUrl: ''
+      }],
+    }));
+  };
+
+  const removeLink = (index) => {
+    const newlinks = formData.links.filter((_, i) => i !== index);
+    setFormData((prev) => ({
+      ...prev,
+      links: newlinks,
+    }));
+  };
+
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     const imageUrls = files.map(file => URL.createObjectURL(file));
@@ -107,7 +139,7 @@ const AddProductPage = () => {
       
       // Append all non-file data
       Object.keys(formData).forEach(key => {
-        if (key === 'images' || key === 'files') {
+        if (key === 'images' || key === 'files' || key === 'links') {
           return;
         }
         if (key === 'bulletPoints') {
@@ -115,13 +147,16 @@ const AddProductPage = () => {
         } else {
           submitData.append(key, formData[key]);
         }
+
       });
       
       // Append each file
       formData.files.forEach((file) => {
         submitData.append('productImage', file);
       });
-  
+
+      submitData.append('links', JSON.stringify(formData.links));
+      
       const response = await fetch('/api/v1/products/addNewProduct', {
         method: 'POST',
         body: submitData
@@ -132,6 +167,33 @@ const AddProductPage = () => {
       if (response.ok) {
         toast.success(data.message || 'Product added successfully');
         // Optionally reset form or redirect
+        // reset
+         
+        setFormData({
+          title: '',
+          description: '',
+          category: '',
+          price: '',
+          discountPercentage: '',
+          rating: '0',
+          stock: '',
+          brand: '',
+          dimensions: '',
+          bulletPoints: [''],
+          links: [{
+            linkName: '',
+            linkUrl: ''
+          }],
+          weight: '',
+          material: '',
+          warrantyInformation: '',
+          shippingInformation: '',
+          availabilityStatus: 'in-stock',
+          returnPolicy: '',
+          images: [],
+
+        });
+
       } else {
         throw new Error(data.message || 'Failed to add product');
       }
@@ -219,8 +281,8 @@ const AddProductPage = () => {
                   >
                     <option value="">Select category</option>
                     {categories.map((category) => (
-                      <option key={category} value={category.toLowerCase()}>
-                        {category}
+                      <option key={category._id} value={category.name.toLowerCase()}>
+                        {category.name}
                       </option>
                     ))}
                   </select>
@@ -314,7 +376,7 @@ const AddProductPage = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Product Details</h2>
             <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Dimensions
@@ -339,6 +401,19 @@ const AddProductPage = () => {
                     value={formData.weight}
                     onChange={handleInputChange}
                     placeholder="in kg e.g., 1.5 "
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Material
+                  </label>
+                  <input
+                    type="text"
+                    name="material"
+                    value={formData.material}
+                    onChange={handleInputChange}
+                    placeholder="e.g., Wood, Plastic"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -379,6 +454,56 @@ const AddProductPage = () => {
               </div>
             </div>
           </div>
+
+          {/* Product Links */}
+
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Product Links</h2>
+            <div className="space-y-6 ">
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Links
+                </label>
+                {formData.links.map((point, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={point.linkName}
+                      onChange={(e) => handleLinkNameChange(index, e.target.value)}
+                      placeholder={`Link ${index + 1} Name`}
+                      className="flex-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <input
+                      type="text"
+                      value={point.linkUrl}
+                      onChange={(e) => handleLinkUrlChange(index, e.target.value)}
+                      placeholder={`Link ${index + 1} Url`}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    {formData.links.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeLink(index)}
+                        className="p-2 text-gray-500 hover:text-gray-700"
+                      >
+                        <Minus className="h-5 w-5" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={addLink}
+                  className="mt-2 flex items-center text-blue-600 hover:text-blue-700"
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add New Link
+                </button>
+              </div>
+            </div>
+          </div>
+
 
           {/* Additional Information */}
           <div className="bg-white rounded-lg shadow p-6">

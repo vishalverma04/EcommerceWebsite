@@ -1,5 +1,6 @@
 import React from "react";
-import { FaTachometerAlt, FaBoxOpen, FaShoppingCart, FaUsers, FaSignOutAlt, FaCogs } from "react-icons/fa";
+import { FaTachometerAlt, FaBoxOpen, FaShoppingCart, FaUsers, FaSignOutAlt, FaCogs, } from "react-icons/fa";
+import {HandPlatter } from 'lucide-react'
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
@@ -51,6 +52,14 @@ const Sidebar = () => {
         >
           <FaUsers className="text-xl" />
           <span>Customers</span>
+        </Link>
+
+        <Link
+          to="/service"
+          className="flex items-center gap-3 text-gray-200 hover:text-white hover:bg-gray-700 px-4 py-2 rounded-lg transition"
+        >
+          <HandPlatter  className="text-xl" />
+          <span>Service Requests</span>
         </Link>
 
         <Link

@@ -4,6 +4,8 @@ import Product from '../models/product.model.js';
 import {User} from '../models/user.model.js';
 import HeroSection from '../models/otherModels/HeroImages.model.js';
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import Order from '../models/order.model.js';
+import ServiceRequest from '../models/service.model.js'
 
 //// products 
 const getAllProductsForAdmin = asyncHander(async (req, res) => {
@@ -162,6 +164,7 @@ const updateProductById=asyncHander(async(req,res)=>{
 })
 
 
+
 /// users
 
 const getTotalUserCount = asyncHander(async (req, res) => {
@@ -179,6 +182,139 @@ const getTotalUserCount = asyncHander(async (req, res) => {
         });
     }
 });
+
+const getallusers=asyncHander(async(req,res)=>{
+    try {
+        const users = await User.find().populate('address').populate('serviceRequests').populate('orders').populate({
+            path: "orders",
+            populate: {
+              path: "items.productId", // Path to populate products within items
+              model: "Product",
+            },
+          }).populate({
+            path:"orders",
+            populate:{
+                path:"shippingAddress",
+                model:"Address"
+            }
+          })
+        res.status(200).json({
+            message: 'Users retrieved successfully',
+            users,
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
+
+//////////   orders
+
+const getAllOrdersForAdmin = asyncHander(async (req, res) => {
+    try {
+        const orders = await Order.find().populate('shippingAddress').populate('items.productId');
+
+        res.status(200).json({
+            message: 'Orders retrieved successfully',
+            orders,
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
+const getOrderById = asyncHander(async (req, res) => {
+    try {
+        const { id } = req.params;
+        const order = await Order.findById(id).populate('shippingAddress');
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+        res.status(200).json({
+            message: 'Order retrieved successfully',
+            order,
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
+const updateOrderStatus=asyncHander(async(req,res)=>{
+
+    try {
+        const { id } = req.params;    
+        const { status } = req.body;
+        
+        const updateData = {status:status};
+        if(status==='delivered'){
+            updateData.deliveredAt=Date.now();
+        }else{
+            updateData.deliveredAt=null;
+        }
+        // Find the order by ID
+        const order = await Order.findByIdAndUpdate(id, updateData, { new: true });
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        res.status(200).json({
+            message: 'Order updated successfully',
+            order,
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+})
+
+const updateOrderEstDeliveryDate=asyncHander(async(req,res)=>{
+    try {
+        const { id } = req.params;    
+        const { estimatedDeliveryDate } = req.body;
+        // Find the order by ID
+        const order = await Order.findByIdAndUpdate(id, {estimatedDeliveryDate}, { new: true });
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        res.status(200).json({
+            message: 'Order updated successfully',
+            order,
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+})
+
+const updateRefundStatus=asyncHander(async(req,res)=>{
+    try {
+        const { id } = req.params;    
+        const { refundStatus } = req.body;
+        // Find the order by ID
+        const order = await Order.findById(id);
+        order.cancellationDetails.refundStatus=refundStatus;
+        if(refundStatus==='refunded'){
+            order.cancellationDetails.refundedAt=Date.now();
+        }else{
+            order.cancellationDetails.refundedAt=null;
+        }
+        await order.save();
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        res.status(200).json({
+            message: 'Order updated successfully',
+            order,
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+})
+
 
 
 //////////////////////      others
@@ -209,6 +345,127 @@ const addNewHeroSection = asyncHander(async (req, res) => {
 });
 
 
+//////////////   service requists
+
+const getAllServiceRequests=asyncHander(async(req,res)=>{
+    try{
+         const serviceRequests=await ServiceRequest.find();
+         if(!serviceRequests){
+            return res.status(500).json({message:'service requests not found',success:false});
+         }
+         res.status(200).json({success:true,serviceRequests,message:"requiest found successfully"})
+    }catch(error){
+        res.status(500).json({message:"something went wrong while fetching services",success:false})
+    }
+})
+
+const updateServiceStatus=asyncHander(async(req,res)=>{
+
+    try {
+        const { id } = req.params;    
+        const { status } = req.body;
+        
+        const updateData = {status:status};
+        if(status==='Resolved'){
+            updateData.resolvedAt=Date.now();
+        }else{
+            updateData.resolvedAt=null;
+        }
+        // Find the order by ID
+        const service = await ServiceRequest.findByIdAndUpdate(id, updateData, { new: true });
+
+        if (!service) {
+            return res.status(404).json({ message: 'service not found' });
+        }
+
+        res.status(200).json({
+            message: 'service updated successfully',
+            service,
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
+////////////////   sales overview
+
+const getSalesOverview=asyncHander(async(req,res)=>{
+    try {
+        // Get date range from query params or default to last 30 days
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 30);
+    
+        // Get overall stats
+        const totalOrders = await Order.countDocuments({
+          createdAt: { $gte: startDate, $lte: endDate }
+        });
+    
+        const salesData = await Order.aggregate([
+          {
+            $match: {
+              createdAt: { $gte: startDate, $lte: endDate },
+              status: { $ne: 'cancelled' }
+            }
+          },
+          {
+            $group: {
+              _id: null,
+              totalRevenue: { $sum: '$total' },
+              averageOrderValue: { $avg: '$total' }
+            }
+          }
+        ]);
+    
+        // Get daily sales trend
+        const dailySales = await Order.aggregate([
+          {
+            $match: {
+              createdAt: { $gte: startDate, $lte: endDate },
+              status: { $ne: 'cancelled' }
+            }
+          },
+          {
+            $group: {
+              _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+              revenue: { $sum: '$total' },
+              orders: { $sum: 1 }
+            }
+          },
+          {
+            $sort: { '_id': 1 }
+          }
+        ]);
+    
+        // Get order status distribution
+        const orderStatus = await Order.aggregate([
+          {
+            $match: {
+              createdAt: { $gte: startDate, $lte: endDate }
+            }
+          },
+          {
+            $group: {
+              _id: '$status',
+              count: { $sum: 1 }
+            }
+          }
+        ]);
+    
+        res.json({
+          overview: {
+            totalOrders,
+            totalRevenue: salesData[0]?.totalRevenue || 0,
+            averageOrderValue: salesData[0]?.averageOrderValue || 0
+          },
+          dailySales,
+          orderStatus
+        });
+    
+      } catch (error) {
+        res.status(500).json({ error: error.message });
+      }
+});
 
 
 export { 
@@ -217,6 +474,15 @@ export {
     getTotalUserCount,
     deleteProductById,
     updateProductById,
-    addNewHeroSection
+    addNewHeroSection,
+    getAllOrdersForAdmin,
+    getOrderById,
+    updateOrderStatus,
+    updateOrderEstDeliveryDate,
+    getallusers,
+    getAllServiceRequests,
+    updateServiceStatus,
+    updateRefundStatus,
+    getSalesOverview
     
  };

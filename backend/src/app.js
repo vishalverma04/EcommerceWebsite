@@ -41,5 +41,7 @@ app.get('/api/getkey',(req,res)=>{
 
 ///////////////////////
 
+import settingsRouter from './routes/settings.routes.js'
+app.use('/api/v1/settings',settingsRouter)
 
 export {app}

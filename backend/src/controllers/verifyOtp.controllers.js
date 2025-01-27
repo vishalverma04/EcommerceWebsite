@@ -2,7 +2,6 @@ import { User } from "../models/user.model.js";
 import { redisClient } from "../config/redis.js";
 import { ApiResponse } from "../utils/Apiresponse.js";
 import { Apierror } from "../utils/Apierror.js";
-import Address from "../models/address.model.js";
 
 const verifyOtp = async (req, res) => {
     const { email, otp } = req.body;
@@ -16,14 +15,6 @@ const verifyOtp = async (req, res) => {
     if (otp !== storedOtp) {
       return res.status(400).json({ message: 'Invalid OTP' });
     }
-
-    // const address=await Address.create({
-    //   street,landmark,city,state,country,postalCode
-    // })
-    // if(!address){
-    //   throw new Apierror(500,"something went wrong while registering address")
-    // }
-    // const addressId=address._id;
     const user=await User.create({
         email,
         fullName,
@@ -31,7 +22,6 @@ const verifyOtp = async (req, res) => {
         mobileNumber,
     })
      if(!user){
-      await Address.findByIdAndDelete(addressId);
         throw new Apierror(500,"something went wrong while registering the user")
      }
      

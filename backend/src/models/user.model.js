@@ -27,8 +27,19 @@ const userSchema=new mongoose.Schema({
         {
         type:mongoose.Schema.Types.ObjectId,
         ref:"Address",
-    }
-]
+    },
+    ],
+    serviceRequests:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"ServiceRequest"
+        }],
+        orders:[
+            {
+                type:mongoose.Schema.Types.ObjectId,
+                ref:"Order"
+            }
+        ],  
 },{timestamps:true})
 
 userSchema.pre("save",async function (next) {

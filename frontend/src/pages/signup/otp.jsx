@@ -27,7 +27,7 @@ function OTPPage() {
       console.log(data)
       navigate('/login');
     } catch (error) {
-      toast.error(data.message)
+      toast.error('Invalid OTP');
     }finally{
       setLoading(false)
     }

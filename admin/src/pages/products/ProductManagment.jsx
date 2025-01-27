@@ -3,6 +3,7 @@ import { Edit, Trash2, Search, Plus, X, Minus } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { useCategoryContext } from '../../contexts/categoryContext';
 
 
 // ProductTable Component
@@ -76,7 +77,7 @@ const SearchBar = ({ onSearch }) => {
       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
       <input
         type="text"
-        placeholder="Search products..."
+        placeholder="Search products by name, category, brand ..."
         onChange={(e) => onSearch(e.target.value)}
         className="pl-10 pr-4 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
@@ -141,6 +142,8 @@ const EditProductModal = ({ product, onClose, onSave }) => {
     }));
   };
 
+  const {categories}=useCategoryContext()
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white  rounded-lg p-6 w-full max-w-[60%] h-full overflow-scroll">
@@ -185,10 +188,12 @@ const EditProductModal = ({ product, onClose, onSave }) => {
               onChange={handleChange}
               className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">Select Category</option>
-              <option value="Electronics">Electronics</option>
-              <option value="Clothing">Clothing</option>
-              <option value="Books">Books</option>
+              <option value="">Select category</option>
+                {categories.map((category) => (
+                  <option key={category._id} value={category.name.toLowerCase()}>
+                    {category.name}
+                  </option>
+              ))}
             </select>
           </div>
           <div>
@@ -436,7 +441,8 @@ const ProductManagement = () => {
 
   const filteredProducts = products.filter(product =>
     product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.brand.toLowerCase().includes(searchTerm.toLowerCase())
+    product.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
   if(loading) {
     return <h1>Loading...</h1>
@@ -457,7 +463,7 @@ const ProductManagement = () => {
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
           >
             <Plus className="h-5 w-5" />
-            Add Product
+            Add New Product
           </button>
         </div>
       </div>

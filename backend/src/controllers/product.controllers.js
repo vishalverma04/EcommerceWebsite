@@ -4,8 +4,6 @@ import { Apierror } from '../utils/Apierror.js';
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
 import { redisClient } from '../config/redis.js';
 
-
-
 // add New Product
 const addNewProduct=asyncHander(async(req,res)=>{
     try {
@@ -26,8 +24,13 @@ const addNewProduct=asyncHander(async(req,res)=>{
           availabilityStatus,
           reviews,
           returnPolicy,
+          links,
+          material,
         } = req.body;
-
+        //
+        const link=JSON.parse(links)
+        // console.log(link)
+        // console.log(req.body) 
         
         
         if (!title || !category || price === undefined || stock === undefined || !weight) {
@@ -61,14 +64,16 @@ const addNewProduct=asyncHander(async(req,res)=>{
           stock,
           brand,
           weight,
+          material,
           warrantyInformation,
           shippingInformation,
           availabilityStatus,
           reviews,
           returnPolicy,
           images,
+          links:link,
         });
-    
+
         const savedProduct = await newProduct.save();
         
         if(!savedProduct){
@@ -127,7 +132,7 @@ const searchProducts = asyncHander(async (req, res) => {
     const result = await Product.find({  
       $or: [
       { title: { $regex: query, $options: "i" } },
-      { description: { $regex: query, $options: "i" } },
+      // { description: { $regex: query, $options: "i" } },
       { category: { $regex: query, $options: "i" } },
       { brand: { $regex: query, $options: "i" } },
     ]
@@ -159,26 +164,61 @@ const getSingleProduct = asyncHander(async (req, res) => {
 });
 
 // review a product
+
+const getProducts = asyncHander(async (req, res) => {
+  try {
+    const products = await Product.find({}).limit(50);
+    await redisClient.set("products_cache", JSON.stringify(products), {
+      EX: 3,
+    });
+
+    res.status(200).json({"statusCode":200,"message":"Products fetched successfully",products});
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ error: "Failed to fetch products" });
+  }
+});
+
+const searchCategoryProduct=asyncHander(async(req,res)=>{
+  try{
+    const { category } = req.params;
+    const products = await Product.find({ category });
+    
+    res.status(200).json({
+        message: 'Products retrieved successfully',
+        products,
+    });
+  }catch(error){
+    res.status(500).json({ error: "Failed to fetch products" });
+
+  }
+});
+
 const reviewProduct=asyncHander(async(req,res)=>{
   try {
-    const { id } = req.params; // Product ID from URL
-    const { userId, rating, comment } = req.body; // Review details from request body
+    const { id } = req.params; 
+    const { userId, rating, comment,title,username} = req.body;
 
-    // Build the review object
-    const review = {
-        userId,
-        rating,
-        comment,
-        createdAt: new Date(),
-    };
+        const review={
+          userId,
+          rating,
+          comment,
+          title,
+          username
+        }  
+        const product = await Product.findById(id);
 
-    // Find the product and push the new review
-    const updatedProduct = await Product.findByIdAndUpdate(
-        id,
-        { $push: { reviews: review } },
-        { new: true, runValidators: true } // Return updated document and validate
-    );
+        if (!product) {
+            return res.status(404).json({ message: "Product not found" });
+        }
 
+        const totalReviews = product.reviews.length;
+        const newRating = ((product.rating*totalReviews+Number(rating) ) / (totalReviews + 1)).toFixed(1);
+        
+
+        product.reviews.push(review);
+        product.rating = newRating;
+        const updatedProduct = await Product.findByIdAndUpdate(id, product, { new: true });
     if (!updatedProduct) {
         return res.status(404).json({ message: "Product not found" });
     }
@@ -193,25 +233,7 @@ const reviewProduct=asyncHander(async(req,res)=>{
         error: error.message,
     });
 }
-})
-
-const getProducts = asyncHander(async (req, res) => {
-  try {
-    const products = await Product.find({}).limit(50);
-
-    // await redisClient.set("products_cache", JSON.stringify(products), {
-    //   EX: 3600,
-    // });
-
-    res.status(200).json({"statusCode":200,"message":"Products fetched successfully",products});
-  } catch (error) {
-    console.error("Error fetching products:", error);
-    res.status(500).json({ error: "Failed to fetch products" });
-  }
 });
-
-
-
 
 export {
   addNewProduct,
@@ -219,5 +241,6 @@ export {
   searchProducts,
   getSingleProduct,
   reviewProduct,
-  getProducts
+  getProducts,
+  searchCategoryProduct,
 };

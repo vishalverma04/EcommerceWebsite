@@ -1,5 +1,4 @@
 import React from 'react';
-import { Bar, Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,48 +9,26 @@ import {
   Legend,
 } from 'chart.js';
 
-import { getProductCount,getTotalUserCount } from '../utils/dashboardData';
+import { getProductCount,getTotalUserCount ,getCategoriesCount} from '../utils/dashboardData';
 import { useEffect,useState } from 'react';
+import SalesOverview from './SalesOverview';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
 
 const Dashboard = () => {
-  // Sample data for charts
-  const salesData = {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June'],
-    datasets: [
-      {
-        label: 'Sales ($)',
-        data: [1200, 1900, 3000, 5000, 4000, 6000],
-        backgroundColor: 'rgba(59, 130, 246, 0.7)',
-        borderColor: 'rgba(59, 130, 246, 1)',
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const ordersData = {
-    labels: ['Completed', 'Pending', 'Canceled'],
-    datasets: [
-      {
-        label: 'Orders',
-        data: [150, 40, 10],
-        backgroundColor: ['#34D399', '#FBBF24', '#F87171'],
-        hoverOffset: 4,
-      },
-    ],
-  };
-
   const [productCount, setProductCount] = useState(0);
   const [userCount, setUserCount] = useState(0);
+  const [categoryCount,setCategoryCount]=useState(0)
 
   useEffect(() => {
     const fetchData = async () => {
       const totalProducts = await getProductCount();
       const totalUsers = await getTotalUserCount();
+      const totalCategory=await getCategoriesCount();
 
       setProductCount(totalProducts);
       setUserCount(totalUsers);
+      setCategoryCount(totalCategory)
     };
 
     fetchData();
@@ -63,8 +40,9 @@ const Dashboard = () => {
       <div className="text-2xl font-semibold text-gray-800 mb-6">Admin Dashboard</div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Total Products */}
+        
         <div className="bg-white p-6 rounded-lg shadow flex items-center space-x-4">
           <div className="bg-blue-100 p-4 rounded-lg">
             <svg
@@ -82,6 +60,7 @@ const Dashboard = () => {
               />
             </svg>
           </div>
+
           <div>
             <p className="text-sm text-gray-500">Total Products</p>
             <p className="text-xl font-semibold text-gray-800">{productCount}</p>
@@ -107,13 +86,13 @@ const Dashboard = () => {
             </svg>
           </div>
           <div>
-            <p className="text-sm text-gray-500">Total Sales</p>
-            <p className="text-xl font-semibold text-gray-800">$50,000</p>
+            <p className="text-sm text-gray-500">Total Categories</p>
+            <p className="text-xl font-semibold text-gray-800">{categoryCount}</p>
           </div>
         </div>
 
         {/* Total Orders */}
-        <div className="bg-white p-6 rounded-lg shadow flex items-center space-x-4">
+        {/* <div className="bg-white p-6 rounded-lg shadow flex items-center space-x-4">
           <div className="bg-yellow-100 p-4 rounded-lg">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -134,7 +113,7 @@ const Dashboard = () => {
             <p className="text-sm text-gray-500">Total Orders</p>
             <p className="text-xl font-semibold text-gray-800">200</p>
           </div>
-        </div>
+        </div> */}
 
         {/* Total Customers */}
         <div className="bg-white p-6 rounded-lg shadow flex items-center space-x-4">
@@ -162,19 +141,7 @@ const Dashboard = () => {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-        {/* Sales Chart */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-medium text-gray-800 mb-4">Sales Overview</h2>
-          <Bar data={salesData} />
-        </div>
-
-        {/* Orders Chart */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-medium text-gray-800 mb-4">Orders Breakdown</h2>
-          <Doughnut data={ordersData} />
-        </div>
-      </div>
+       <SalesOverview />
     </div>
   );
 };
