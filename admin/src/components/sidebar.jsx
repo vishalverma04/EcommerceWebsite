@@ -3,12 +3,14 @@ import { FaTachometerAlt, FaBoxOpen, FaShoppingCart, FaUsers, FaSignOutAlt, FaCo
 import {HandPlatter } from 'lucide-react'
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const Sidebar = () => {
  const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.removeItem("token");
-    window.location.href = "/login";
+    window.location.href = "/";
+    toast.success("Admin logout successfully")
   };
 
   return (

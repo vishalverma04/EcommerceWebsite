@@ -6,6 +6,9 @@ import HeroSection from '../models/otherModels/HeroImages.model.js';
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import Order from '../models/order.model.js';
 import ServiceRequest from '../models/service.model.js'
+import Admin from '../models/admin.model.js'
+import jwt from 'jsonwebtoken'
+import { Apierror } from "../utils/Apierror.js";
 
 //// products 
 const getAllProductsForAdmin = asyncHander(async (req, res) => {
@@ -467,6 +470,91 @@ const getSalesOverview=asyncHander(async(req,res)=>{
       }
 });
 
+///////////   admin login and signup
+
+const adminLogin=asyncHander(async(req,res)=>{
+    const {email, password,secret}=req.body
+    try{
+      const admin=await Admin.findOne({email});
+      if(!admin) {
+        throw new Apierror(400,"Admin not found")
+      }
+      const isPasswordValid=await admin.isPasswordCorrect(password)
+
+      if(!isPasswordValid){
+        throw new Apierror(400,"Invalid password")
+      }
+
+      const adminSecretKey=process.env.ADMIN_SECRET_KEY
+      if(secret!==adminSecretKey){
+        throw new Apierror(400,"Invalid secret key")
+    }
+
+      
+        const token=await admin.generateAccessToken();
+
+        const options={
+            httpOnly:true,
+            secure:process.env.NODE_ENV === "production",
+         }
+
+        res.status(200).
+        cookie('token',token,options).
+        json({success:true,token,admin,message:"Admin logged in successfully"})
+    }catch(error){
+        res.status(500).json({success:false,message:error.message})
+    }
+})
+
+const adminSignup=asyncHander(async(req,res)=>{
+    const {email, password,fullName,mobileNumber}=req.body
+    try{
+
+      const admin=await Admin.findOne({email});
+        if(admin) {
+            res.status(400).json({success:false,message:"Admin already Exists..."})
+        }
+        const newAdmin=await Admin.create({
+            email,
+            password,
+            fullName,
+            mobileNumber
+        })
+        res.status(201).json({success:true,newAdmin,message:"Admin signed up successfully"})
+    }catch(error){
+        res.status(500).json({success:false,message:"something went wrong while signing up"})
+    }
+
+})
+
+const isAdminAuthenticated = asyncHander(async (req, res) => {
+    const token=await req.cookies?.token || req.header("Authorization")?.replace("Bearer ","") || req.body
+    if (!token) {
+        return res.status(401).json({ message: 'Not authorized to access this route' });
+    }
+
+
+    try {
+        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        if(!decoded){
+            return res.status(400).json({success:false,message:"Invalid Token"})
+        }
+        const admin = await Admin.findById(decoded._id);
+
+        if(!admin) {
+            return res.status(401).json({ message: 'Not authorized to access this route' });
+        }
+
+        
+        
+        res.status(200).json({success:true,message:"Admin Authorized"})
+        
+        
+    } catch (error) {
+        return res.status(401).json({ message: 'Not authorized to access this route' });
+    }
+});
+
 
 export { 
     getAllProductsForAdmin, 
@@ -483,6 +571,9 @@ export {
     getAllServiceRequests,
     updateServiceStatus,
     updateRefundStatus,
-    getSalesOverview
+    getSalesOverview,
+    adminLogin,
+    adminSignup,
+    isAdminAuthenticated
     
  };

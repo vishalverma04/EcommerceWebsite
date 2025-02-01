@@ -14,14 +14,18 @@ const CustomerDetails = React.lazy(() => import('./pages/customer/customerDetail
 const ServiceDetailsPage = React.lazy(() => import('./pages/serviceRequists/serviceDetails'));
 const ServicePage = React.lazy(() => import('./pages/serviceRequists/servicePage'));
 const SalesOverview =React.lazy(() => import('./pages/SalesOverview'));
+// const AdminSignUp = React.lazy(() => import('./pages/signup'));
+// const Verifyotp =React.lazy(()=> import ('./pages/OtpPage'))
+
+import { useAuth } from "./contexts/AuthContext";
 
 
 const App = () => {
-  const [login, setLogin] = useState(true);
+  const {isLoggedIn}=useAuth()
   return (
     <Router>
       <Routes>
-      {login ? 
+      {isLoggedIn ? 
       (
         <Route  element={<BaseLayout />}>
           <Route path="/" Component={dashboard}></Route>
@@ -39,7 +43,11 @@ const App = () => {
           <Route path="/*" element={<h1>Not Found</h1>}></Route>
         </Route>
       ):(
-        <Route path="/" element={<AdminLogin setLogin={setLogin} />}></Route>
+        <>
+        <Route path="/" element={<AdminLogin/>}></Route>
+        {/* <Route path="/signup" element={<AdminSignUp/>}></Route> */}
+        {/* <Route path="/verifyotp" element={<Verifyotp/>}></Route> */}
+        </>
       )
       }
 

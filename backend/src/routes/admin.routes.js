@@ -14,7 +14,10 @@ import {
     getAllServiceRequests,
     updateServiceStatus,
     updateRefundStatus,
-    getSalesOverview
+    getSalesOverview,
+    adminLogin,
+    adminSignup,
+    isAdminAuthenticated
 } from "../controllers/admin.controllers.js"
 const router=express.Router()
 import {upload} from "../middlewares/multer.middleware.js"
@@ -46,6 +49,14 @@ router.put('/services/:id/status',updateServiceStatus)
 
 /////////  sales data
 router.get('/salesoverview',getSalesOverview)
+
+///////// login
+router.post('/login',adminLogin)
+router.post('/signup',adminSignup)
+router.get('/isLoggedIn',isAdminAuthenticated)
+
+
+
 
 
 export default router

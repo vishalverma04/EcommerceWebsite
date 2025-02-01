@@ -1,128 +1,220 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Mail, Lock, ArrowLeft, Eye, EyeOff, AlertCircle, CheckCircle} from 'lucide-react';
+import {toast} from 'react-hot-toast'
+import Loader from './Loader'
 
-const AdminLogin = () => {
+import {useAuth} from '../contexts/AuthContext'
+import axios from 'axios';
+
+const LoginSystem = () => {
+  const [currentView, setCurrentView] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+  const [secret,setSecret]=useState('')
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setloading] = useState(false);
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
 
-  const handleLogin = (e) => {
+  const {login}=useAuth()
+
+  const handleLogin = async (e) => {
+      e.preventDefault();
+      setloading(true)
+      try{
+       const res= await login(email, password,secret);
+       if(res){
+        toast.success('login successfully')
+        setError('')
+       }else{
+        toast.error('login failed')
+        setError('login failed')
+        setSuccess('')
+       }
+      }catch(error){
+        setloading(false)
+        toast.error('something went wrong while sending data...')
+        setError('something went wrong while sending data...')
+        setSuccess('')
+      }finally{
+    setloading(false)
+      }  
+    };
+  
+
+  const handleForgotPassword = async (e) => {
     e.preventDefault();
+    if(!email){
+      toast.error('Please enter email')
+      setError('Please enter email')
+      return
+    }
 
-    // Replace with your authentication logic
-    if (email === 'admin@example.com' && password === 'admin123') {
-      alert('Login Successful!');
-      window.location.href = "/admin";// Redirect to admin dashboard
-    } else {
-      alert('Invalid credentials. Please try again.');
+    try {
+      const response = await axios.post("/api/v1/users/forgotpassword", { email });
+      toast.success(response.data.message)
+      setSuccess(response.data.message)
+      setError('')
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Something went wrong.");
+      setError(err.response?.data?.message || "Something went wrong.");
+      setSuccess('')
     }
   };
 
-  return (
-    <div className="min-h-screen flex flex-col items-center bg-gray-50">
-      {/* Top Section */}
-      <div className="w-full bg-blue-600 py-4 text-white text-center">
-        <h1 className="text-3xl font-bold">Welcome to HG ENTERPRISES INDIA Admin Portal</h1>
-        <p className="mt-2 text-sm">
-          Manage your products, orders, sales, and customers efficiently. Your success is our priority!
-        </p>
+  
+  const renderError = () => {
+    if (!error) return null;
+    return (
+      <div className="flex items-center p-4 mb-4 text-red-800 bg-red-100 rounded">
+        <AlertCircle className="h-5 w-5 mr-2" />
+        <p>{error}</p>
       </div>
+    );
+  };
 
-      {/* Main Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 w-full max-w-6xl bg-white rounded-lg shadow-lg overflow-hidden mt-8">
-        {/* Left Section - Company Info */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-8 flex flex-col items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold mb-4">HG ENTERPRISES INDIA</h1>
-            <p className="text-lg mb-6">
-              Welcome to the Admin Portal of HG ENTERPRISES INDIA! Manage products, track orders, and oversee operations
-              with ease.
-            </p>
-            <div className="mt-4">
-              <p className="text-sm font-medium">Contact: 9728598505, 7303899440</p>
-              <p className="text-sm font-medium">Email: admin@hgenterprisesindia.com</p>
-              <p className="text-sm font-medium">
-                Address: Konsiwas Road, Vijay Nagar, Rewari, Haryana 123401
-              </p>
-            </div>
-          </div>
+  const renderSuccess = () => {
+    if (!success) return null;
+    return (
+      <div className="flex items-center p-4 mb-4 text-green-800 bg-green-100 rounded">
+        <CheckCircle className="h-5 w-5 mr-2" />
+        <p>{success}</p>
+      </div>
+    );
+  };
+
+
+
+  const renderLoginView = () => (
+    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+      <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+     {renderError()}
+      {renderSuccess()}
+
+      <form onSubmit={handleLogin} className="space-y-4">
+        <div className="relative">
+          <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="pl-10 w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
 
-        {/* Right Section - Login Form */}
-        <div className="p-8 flex flex-col justify-center">
-          <h1 className="text-2xl font-bold text-gray-800 text-center mb-6">Admin Login</h1>
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Enter your admin email"
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Enter your password"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Login
-            </button>
-          </form>
-          <p className="text-center text-sm text-gray-500 mt-4">
-            For assistance, contact <span className="font-medium text-blue-600">IT Support</span>.
+        <div className="relative">
+          <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="pl-10 w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-3"
+          >
+            {showPassword ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}
+          </button>
+        </div>
+
+        <div className="relative">
+          <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+          <input
+            type="password"
+            placeholder="Enter Secret Key"
+            value={secret}
+            onChange={(e) => setSecret(e.target.value)}
+            className="pl-10 w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition-colors"
+        >
+          Login
+        </button>
+        <button
+          type="button"
+          onClick={() => setCurrentView('forgotPassword')}
+          className="w-full text-blue-500 text-sm hover:underline"
+        >
+          Forgot Password?
+        </button>
+        
+      </form>
+
+      {/* <div className="text-center mt-4">
+          <p>
+            Don't have an account?{' '}
+            <Link to="/signup" className="text-blue-500 hover:underline">
+              Create a new account
+            </Link>
           </p>
-        </div>
-      </div>
-
-      {/* Bottom Section */}
-      <div className="w-full bg-gray-100 py-6 text-center mt-8">
-        <h2 className="text-lg font-semibold">Empowering Your Business</h2>
-        <p className="text-sm text-gray-600 mt-2">
-          At HG ENTERPRISES INDIA, we believe in providing seamless tools to manage your operations. Contact us for any
-          queries or assistance.
-        </p>
-        {/* <div className="flex items-center justify-center mt-4 space-x-6">
-          <a
-            href="/about"
-            className="text-blue-600 font-medium hover:underline"
-          >
-            About Us
-          </a>
-          <a
-            href="/contact"
-            className="text-blue-600 font-medium hover:underline"
-          >
-            Contact Support
-          </a>
-          <a
-            href="/help"
-            className="text-blue-600 font-medium hover:underline"
-          >
-            Help Center
-          </a>
         </div> */}
-      </div>
+
+    </div>
+  );
+
+  const renderForgotPasswordView = () => (
+    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+      <button
+        onClick={() => setCurrentView('login')}
+        className="flex items-center text-gray-600 mb-4"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Login
+      </button>
+      <h2 className="text-2xl font-bold mb-6 text-center">Forgot Password</h2>
+
+      {renderError()}
+      {renderSuccess()}
+      <form onSubmit={handleForgotPassword} className="space-y-4">
+        <div className="relative">
+          <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="pl-10 w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div className="relative">
+          <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+          <input
+            type="password"
+            placeholder="Enter Secret"
+            value={secret}
+            onChange={(e) => setSecret(e.target.value)}
+            className="pl-10 w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition-colors"
+        >
+          Verify Email
+        </button>
+      </form>
+    </div>
+  );
+
+
+  if(loading){
+    return <Loader/>
+  }
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      {currentView === 'login' && renderLoginView()}
+      {currentView === 'forgotPassword' && renderForgotPasswordView()}
     </div>
   );
 };
 
-export default AdminLogin;
+export default LoginSystem;
