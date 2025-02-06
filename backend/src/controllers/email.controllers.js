@@ -3,7 +3,7 @@ import transporter from '../config/email.js';
 const sendOtpEmail = async (email,htmlcontent) => {
   
     const mailOptions = {
-        // from: process.env.EMAIL_FROM, 
+        // from: 'vishalverma75556@gmail.com', 
         to: email,
         subject: 'Verify your email',
         html: htmlcontent
