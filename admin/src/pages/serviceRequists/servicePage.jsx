@@ -5,6 +5,8 @@ import axios from 'axios';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 
+const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+
 import { SERVICE_STATUS } from  '../../constant.js';
 
 const AdminOrders = () => {
@@ -13,7 +15,7 @@ const AdminOrders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response=await axios.get("/api/v1/admin/services");
+        const response=await axios.get(`${SERVER_URL}/api/v1/admin/services`);
         if(response.status===200){
           setServices(response.data.serviceRequests);  
         }
@@ -33,7 +35,7 @@ const AdminOrders = () => {
 
   // Handle status change
   const handleStatusChange =async (serviceId, newStatus) => {
-    const response=await axios.put(`/api/v1/admin/services/${serviceId}/status`, { status: newStatus });
+    const response=await axios.put(`${SERVER_URL}/api/v1/admin/services/${serviceId}/status`, { status: newStatus });
     if(response.status===200){
       toast.success("services status updated successfully");
       if(newStatus==="Resolved"){

@@ -4,6 +4,8 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useCategoryContext } from '../../contexts/categoryContext';
 
+const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+
 const CategorySection = () => {
 
     const { categories, setCategories,fetchCategories } = useCategoryContext();
@@ -34,7 +36,7 @@ const CategorySection = () => {
         formData.append('name', newCategory.name);
         formData.append('image', newCategory.imageFile);
   
-        const { data } = await axios.post('/api/v1/settings/addnewcategory', formData);
+        const { data } = await axios.post(`${SERVER_URL}/api/v1/settings/addnewcategory`, formData);
         setCategories([...categories, data.newCategory]);
         setNewCategory({ name: '', imageFile: null, imagePreview: null });
         toast.success('Category added successfully');
@@ -48,7 +50,7 @@ const CategorySection = () => {
     const handleDeleteCategory =async (id) => {
       if(window.confirm('Are you sure?')){
          try {
-            const {data} = await axios.delete(`/api/v1/settings/deletecategory/${id}`);
+            const {data} = await axios.delete(`${SERVER_URL}/api/v1/settings/deletecategory/${id}`);
             setCategories(categories.filter(category=>category._id!==id))
             toast.success(data.message)
         } catch (error) {

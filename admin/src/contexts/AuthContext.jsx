@@ -4,6 +4,8 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -11,17 +13,18 @@ export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading,setIsLoading]=useState(false)
   const [loggedInUser,setLoggedInUser]=useState({})
+  
 
   const login = async (email, password,secret) => {
     setIsLoading(true)
     try {
-      const {data} = await axios.post('/api/v1/admin/login', {
+      const {data} = await axios.post(`${SERVER_URL}/api/v1/admin/login`, {
         email,
         password,
         secret
       });
       
-      console.log(data)
+     
 
       if(data.success==true){
         setIsLoggedIn(true)
@@ -37,6 +40,8 @@ export const AuthProvider = ({ children }) => {
       return false;
     }finally{
       setIsLoading(false)
+      console.log(SERVER_URL)
+      console.log("hii")
     } 
   };
 
@@ -46,7 +51,7 @@ export const AuthProvider = ({ children }) => {
       if (!token) {
         return false;
       }
-      const { data } = await axios.get('/api/v1/admin/isLoggedIn', {
+      const { data } = await axios.get(`${SERVER_URL}/api/v1/admin/isLoggedIn`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

@@ -23,6 +23,8 @@ import { toast } from 'react-hot-toast';
 import { useLocation } from 'react-router-dom';
 import { useState,useEffect } from 'react';
 
+const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+
 const OrderTrackingPage = () => {
     const location = useLocation();
     const [order, setOrder] = useState(location.state.order || {});
@@ -68,7 +70,7 @@ const OrderTrackingPage = () => {
     return dateformat;
   }
   const handleStatusChange =async (orderId, newStatus) => {
-    const response=await axios.put(`/api/v1/admin/orders/${orderId}/status`, { status: newStatus });
+    const response=await axios.put(`${SERVER_URL}/api/v1/admin/orders/${orderId}/status`, { status: newStatus });
     if(response.status===200){
       toast.success("Order status updated successfully");
      order.status = newStatus;
@@ -83,7 +85,7 @@ const OrderTrackingPage = () => {
   };
 
   const handleRefundStatusChange =async (orderId, newStatus) => {
-    const response=await axios.put(`/api/v1/admin/orders/${orderId}/refundStatus`, { refundStatus: newStatus });
+    const response=await axios.put(`${SERVER_URL}/api/v1/admin/orders/${orderId}/refundStatus`, { refundStatus: newStatus });
     if(response.status===200){
       toast.success("Refund status updated successfully");
       order.cancellationDetails.refundStatus = newStatus;

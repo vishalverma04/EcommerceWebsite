@@ -6,6 +6,8 @@ import Loader from './Loader'
 import {useAuth} from '../contexts/AuthContext'
 import axios from 'axios';
 
+const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+
 const LoginSystem = () => {
   const [currentView, setCurrentView] = useState('login');
   const [email, setEmail] = useState('');
@@ -51,7 +53,7 @@ const LoginSystem = () => {
     }
 
     try {
-      const response = await axios.post("/api/v1/users/forgotpassword", { email });
+      const response = await axios.post(`${SERVER_URL}/api/v1/users/forgotpassword`, { email });
       toast.success(response.data.message)
       setSuccess(response.data.message)
       setError('')

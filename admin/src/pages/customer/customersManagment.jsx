@@ -30,6 +30,8 @@ import toast from 'react-hot-toast';
 import CustomerGrowthAnalytics from '../settingsPage/customerGrowth';
 import { useNavigate } from 'react-router-dom';
 
+const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+
 const CustomerDashboard = () => {
   // Sample customer data
   const [AllCustomers, setAllCustomers] = useState([]);
@@ -37,7 +39,7 @@ const CustomerDashboard = () => {
     useEffect(() => {
         const fetchCustomers = async () => {
             try {
-                const { data } = await axios.get('/api/v1/admin/getallusers');
+                const { data } = await axios.get(`${SERVER_URL}/api/v1/admin/getallusers`);
                 setAllCustomers(data.users);
             } catch (error) {
                 toast.error('Error fetching customers');

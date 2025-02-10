@@ -33,7 +33,7 @@ const AdminOrders = () => {
 
   // Handle status change
   const handleStatusChange =async (orderId, newStatus) => {
-    const response=await axios.put(`/api/v1/admin/orders/${orderId}/status`, { status: newStatus });
+    const response=await axios.put(`${SERVER_URL}/api/v1/admin/orders/${orderId}/status`, { status: newStatus });
     if(response.status===200){
       toast.success("Order status updated successfully");
       if(newStatus==="delivered"){

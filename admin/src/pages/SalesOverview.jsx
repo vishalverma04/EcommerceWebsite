@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { ReceiptIndianRupee , ShoppingBag, TrendingUp, Package } from 'lucide-react';
 
+const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+
 // Color palette for pie chart
 const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
 
@@ -11,7 +13,7 @@ const SalesOverview = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('/api/v1/admin/salesoverview')
+    fetch(`${SERVER_URL}/api/v1/admin/salesoverview`)
       .then(res => res.json())
       .then(data => {
         setData(data);

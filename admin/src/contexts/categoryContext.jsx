@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 const CategoryContext = createContext();
 import toast from 'react-hot-toast';
 
+const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+
 // Product Provider Component
 export const ContextProvider = ({ children }) => {
     const [categories, setCategories] = useState([]);
@@ -14,7 +16,7 @@ export const ContextProvider = ({ children }) => {
     const fetchCategories = async () => {
         setLoading(true);
         try {
-            const {data} = await axios.get('/api/v1/settings/getcategories');
+            const {data} = await axios.get(`${SERVER_URL}/api/v1/settings/getcategories`);
             setCategories(data.categories || []);
         } catch (error) {
             toast.error('Internal Server Error');

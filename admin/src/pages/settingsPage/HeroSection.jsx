@@ -1,103 +1,9 @@
-// import React, { useState,useEffect } from 'react';
-// import { Upload, Trash2, Edit, Plus, Save, X } from 'lucide-react';
-// import axios from 'axios';
-// import toast from 'react-hot-toast';
-// const HeroSection = () => {
-//     const [images, setImages] = useState([]);
-
-    // useEffect(() => {
-    //   const fetchImages = async () => {
-    //     const response = await axios.get('/api/v1/settings/getheroimages');
-    //     setImages(response.data.heroImages);
-    //   }
-    //   fetchImages();
-    // }, []);
-
-//     const [loadind,setLoading]=useState(false)  
-  
-    // const handleImageUpload =async (e) => {
-    //   setLoading(true)
-    //   try{
-    //    const formData=new FormData()
-    //     formData.append('image',e.target.files[0])
-    //     const response = await axios.post('/api/v1/settings/addnewheroimage',formData);
-    //     setImages([...images, response.data.newHeroImage]);
-    //     toast.success(response.data.message);
-
-    //   }catch(error){
-    //     toast.error(error.response.data.message);
-    //   }finally{
-    //     setLoading(false)
-    //   }
-    // };
-  
-    // const handleDelete =async (id) => {
-    //   if(window.confirm('Are you sure?')){
-    //     try {
-    //        const {data} = await axios.delete(`/api/v1/settings/deleteheroimage/${id}`);
-    //        setImages(images.filter(image=>image._id!==id))
-    //        toast.success('Hero Image deleted successfully')
-    //    } catch (error) {
-    //        toast.error('Internal Server Error');
-    //    }        
-    //  }
-
-//     };
-//     if(loadind){
-//       return <div>Loading...</div>
-//     }
-  
-//     return (
-//       <div className="bg-white p-6 rounded-lg shadow-md">
-//         <h2 className="text-2xl font-semibold mb-4">Hero Section Images</h2>
-        
-//         {/* Upload Section */}
-//         <div className="mb-6">
-//           <label className="flex items-center gap-2 w-fit px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700">
-//             <Upload size={20} />
-//             <span>Upload New Image</span>
-//             <input
-//               type="file"
-//               className="hidden"
-//               accept="image/*"
-//               onChange={handleImageUpload}
-//             />
-//           </label>
-//         </div>
-  
-//         {/* Images Grid */}
-//         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//           {images.map(image => (
-//             <div key={image._id} className="border rounded-lg p-4">
-//               <img
-//                 src={image.image}
-//                 loading='lazy'
-//                 className="w-full h-48 object-cover rounded-lg mb-3"
-//               />
-//                 <div className="flex items-center justify-between">
-                
-//                     <button
-//                       onClick={() => handleDelete(image._id)}
-//                       className="p-2 text-red-600 hover:bg-red-50 rounded flex"
-//                     >
-//                     <span>Delete</span>
-//                       <Trash2 size={20} />
-                      
-//                     </button>
-//                 </div>
-//             </div>
-//           ))}
-//         </div>
-//       </div>
-//     );
-//   };
-
-//   export default HeroSection;
-
 import { useState,useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import {Upload, Trash2,Plus} from 'lucide-react'
+
+const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
 const HeroImageAdmin = () => {
   const [images, setImages] = useState([]);
@@ -110,7 +16,7 @@ const HeroImageAdmin = () => {
     setIsLoading(true)
    try {
      const fetchImages = async () => {
-       const response = await axios.get('/api/v1/settings/getheroimages');
+       const response = await axios.get(`${SERVER_URL}/api/v1/settings/getheroimages`);
        setImages(response.data.heroImages);
      }
      fetchImages();
@@ -147,7 +53,7 @@ const HeroImageAdmin = () => {
      const formData=new FormData()
       formData.append('image',image)
       formData.append('productId',productId)
-      const response = await axios.post('/api/v1/settings/addnewheroimage',formData);
+      const response = await axios.post(`${SERVER_URL}/api/v1/settings/addnewheroimage`,formData);
       setImages([...images, response.data.newHeroImage]);
       toast.success(response.data.message);
       setImage(null);
@@ -163,7 +69,7 @@ const HeroImageAdmin = () => {
   const handleDelete =async (id) => {
     if(window.confirm('Are you sure?')){
       try {
-         const {data} = await axios.delete(`/api/v1/settings/deleteheroimage/${id}`);
+         const {data} = await axios.delete(`${SERVER_URL}/api/v1/settings/deleteheroimage/${id}`);
          setImages(images.filter(image=>image._id!==id))
          toast.success('Hero Image deleted successfully')
      } catch (error) {

@@ -14,6 +14,8 @@ import { useLocation } from 'react-router-dom';
 import { SERVICE_STATUS } from '../../constant';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+
+const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 const ServiceDetailsPage = () => {
 
     const location =useLocation();
@@ -35,6 +37,8 @@ const ServiceDetailsPage = () => {
   const [status,setStaus]=useState(serviceRequest.status)
 
   const isWarranty = serviceType === 'warranty';
+
+  
 
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -68,7 +72,7 @@ const ServiceDetailsPage = () => {
   };
 
   const handleStatusChange =async (serviceId, newStatus) => {
-    const response=await axios.put(`/api/v1/admin/services/${serviceId}/status`, { status: newStatus });
+    const response=await axios.put(`${SERVER_URL}/api/v1/admin/services/${serviceId}/status`, { status: newStatus });
     if(response.status===200){
       toast.success("services status updated successfully");
       setStaus(newStatus)

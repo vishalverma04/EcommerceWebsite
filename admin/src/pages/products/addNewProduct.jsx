@@ -3,6 +3,8 @@ import { Plus, Minus, Upload, AlertCircle, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useCategoryContext } from '../../contexts/categoryContext';
 
+const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+
 const AddProductPage = () => {
     const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -157,7 +159,7 @@ const AddProductPage = () => {
 
       submitData.append('links', JSON.stringify(formData.links));
       
-      const response = await fetch('/api/v1/products/addNewProduct', {
+      const response = await fetch(`${SERVER_URL}/api/v1/products/addNewProduct`, {
         method: 'POST',
         body: submitData
       });

@@ -15,6 +15,8 @@ import {
   UserPlus
 } from 'lucide-react';
 
+const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+
 const CustomerGrowthAnalytics = ({ AllCustomers }) => {
   // Process customer data to get monthly metrics
   const monthlyGrowthData = useMemo(() => {
