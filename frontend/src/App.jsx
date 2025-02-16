@@ -23,7 +23,7 @@ const ServicesPage = React.lazy(() => import('./pages/servicePage/servicePage'))
 const ROServicePage = React.lazy(() => import('./pages/servicePage/Roservice'));
 const WarrantyPage = React.lazy(() => import('./pages/servicePage/warranty'));
 const ResetPassword = React.lazy(() => import('./pages/ResetPassword'));
-const Developer = React.lazy(() => import('./pages/Developer/MyProfile'));
+const Developer = React.lazy(() => import('./pages/developer/MyProfile'));
 
 import { useAuth } from "./contexts/AuthContext";
 function App() {
