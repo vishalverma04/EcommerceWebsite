@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getCart, calculateCartTotal ,calculateCartOriginalTotal} from '../utility/cart';
-import CartItemComponent from '../components/cartComponent';
+import CartItemComponent from '../components/CartComponent';
 import EmptyCart from './EmptyCart';
 import { useNavigate } from 'react-router-dom';
 
